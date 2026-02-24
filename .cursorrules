@@ -9,192 +9,185 @@ Target: [YOUR_ICP - e.g., "AI startups needing training data"]
 
 ## CRM Architecture
 
-### Master Tables
+### Data Structure
 
 ```
 sales/crm/
-├── crm_companies_master.csv   ← Companies (website as PK)
-├── crm_people_master.csv      ← People (linkedin_url as PK)
-├── crm_outreach_activities.csv ← Activity log
-└── crm_sources.csv            ← Source tracking
-
-sales/leads/
-├── leads_companies_raw.csv    ← Raw company intake
-└── leads_people_raw.csv       ← Raw people intake
+├── contacts/
+│   ├── companies.csv          ← All companies (PK: company_id)
+│   └── people.csv             ← All contacts (PK: person_id)
+├── products.csv               ← Your products/services
+├── relationships/
+│   ├── leads.csv              ← Sales pipeline
+│   ├── clients.csv            ← Active clients
+│   ├── partners.csv           ← Partner relationships
+│   └── deals.csv              ← Deal tracking & invoicing
+├── activities.csv             ← All communications
+└── schema.yaml                ← Machine-readable validation rules
 ```
 
-### Pipeline Flow
-```
-Data Source → leads_*_raw.csv → crm_*_master.csv → outreach → activities
-                (staging)         (validated)
-```
+### Data Model
 
----
-
-## Schema Definitions
-
-### crm_companies_master.csv
 ```
-company_id          - UUID (auto-generated)
-company_name        - string (required)
-website             - string (PK, unique identifier)
-linkedin_company_url - string
-stage               - seed/series_a/series_b/growth
-funding_amount      - string
-funding_date        - YYYY-MM
-ai_focus            - string (what AI/ML they do)
-vertical            - string (industry)
-geo                 - string (location)
-signal_type         - funding/hiring/product_launch/partnership
-signal_source_url   - URL (required if signal_type set)
-primary_source      - string (single value)
-source_tags         - comma-separated tags
-status              - new/researched/contacted/meeting/won/lost
-priority            - hot/medium/low
-notes               - string
-created_date        - YYYY-MM-DD
-last_updated        - YYYY-MM-DD (ALWAYS update this!)
-```
-
-### crm_people_master.csv
-```
-person_id           - UUID (auto-generated)
-linkedin_url        - string (PK, must contain linkedin.com)
-first_name          - string (required)
-last_name           - string (required)
-company_website     - string (FK to companies)
-company_name        - string
-role                - string
-email               - string
-connection_degree   - 1/2/3
-mutual_connections_count - integer
-primary_source      - string (single value)
-source_tags         - comma-separated tags
-status              - new/researched/contacted/responded/meeting/won/lost
-priority            - hot/medium/low
-personalization_hook - string (1 sentence max)
-hook_source_url     - URL
-notes               - string
-last_contact_date   - YYYY-MM-DD
-next_followup_date  - YYYY-MM-DD
-created_date        - YYYY-MM-DD
-last_updated        - YYYY-MM-DD (ALWAYS update this!)
-```
-
-### crm_outreach_activities.csv
-```
-activity_id         - UUID
-linkedin_url        - string (FK to people)
-date                - YYYY-MM-DD
-channel             - linkedin/email/twitter/telegram/whatsapp
-activity_type       - dm/connect_request/followup/email/call/research
-message_preview     - string (first 100 chars)
-result              - sent/replied/no_response/accepted/rejected
-response_quality    - positive/neutral/negative/meeting
-next_followup_date  - YYYY-MM-DD
-audience_segment    - string (e.g., series_a, enterprise)
-hook_type           - string (e.g., funding, hiring, mutual_connection)
-notes               - string
+Companies ←──── People
+    │               │
+    ├── Leads       │ (via primary_contact_id)
+    ├── Clients     │
+    ├── Partners    │
+    │       │
+    │    Deals
+    │
+    └── Activities ──── People
 ```
 
 ---
 
-## Data Validation Rules
+## Schema Quick Reference
 
-### Before ANY write to master tables:
+See `sales/crm/schema.yaml` for full machine-readable schema.
+See `docs/SCHEMA.md` for detailed field documentation.
 
-**For Companies:**
-- [ ] company_name OR website is not empty
-- [ ] If signal_type set → signal_source_url must be set
-- [ ] last_updated = today's date
-- [ ] Check for duplicate by website before adding
+### companies.csv
+```
+company_id, name, website, linkedin_url, type, industry, geo, size,
+description, created_date, last_updated
+```
+PK: company_id (format: comp-xxx)
 
-**For People:**
-- [ ] linkedin_url contains "linkedin.com" (if provided)
-- [ ] first_name is not empty
-- [ ] last_name is not empty
-- [ ] last_updated = today's date
-- [ ] Check for duplicate by linkedin_url before adding
+### people.csv
+```
+person_id, first_name, last_name, email, phone, linkedin_url,
+company_id (FK), role, notes, created_date, last_updated,
+telegram_username, last_contact
+```
+PK: person_id (format: p-xxx-N)
+Rule: Must have email OR phone OR telegram_username
 
----
+### products.csv
+```
+product_id, business_line, name, type, description, owner, status, created_date
+```
+PK: product_id. Types: service / reseller / community
 
-## Status vs Priority (STRICT!)
+### leads.csv
+```
+lead_id, company_id (FK), product_id (FK), stage, source, priority,
+primary_contact_id (FK), estimated_value, currency, next_action,
+next_action_date, notes, created_date, last_updated
+```
+Stages: new -> qualified -> proposal -> negotiation -> won / lost
 
-### Status = Funnel Stage
-- new → researched → contacted → responded → meeting → won/lost
+### clients.csv
+```
+client_id, company_id (FK), product_id (FK), status, contract_start,
+contract_end, mrr, currency, primary_contact_id (FK), notes,
+created_date, last_updated
+```
+Statuses: active / paused / churned
 
-### Priority = Importance
-- hot / medium / low
+### partners.csv
+```
+partner_id, company_id (FK), product_id (FK), partnership_type, status,
+since, primary_contact_id (FK), revenue_share, notes, created_date, last_updated
+```
+Types: training_partner / workforce_partner / reseller_agreement / referral_partner
 
-**NEVER use "Hot" or "Cold" as status!**
+### deals.csv
+```
+deal_id, client_id (FK), name, value, currency, stage,
+created_date, delivered_date, invoice_date, invoice_number,
+paid_date, paid_amount, notes
+```
+Stages: proposal -> negotiation -> won -> in_progress -> delivered -> invoiced -> paid
+
+### activities.csv
+```
+activity_id, person_id (FK), company_id (FK), product_id (FK),
+type, channel, direction, subject, notes, date, created_by
+```
+Types: call / email / meeting / message / note
+Channels: email / telegram / whatsapp / phone / in_person / linkedin
 
 ---
 
 ## Skills
 
-### SKILL: Add New Lead
+### SKILL: Add Company
+1. Check for duplicates by website
+2. Generate company_id (format: comp-xxx)
+3. Add row to contacts/companies.csv
+4. Set created_date = today, last_updated = today
 
-1. Check if already exists (by website or linkedin_url)
-2. If exists → UPDATE existing record
-3. If new → ADD with all required fields
-4. Generate UUID for ID
-5. Set created_date = today
-6. Set last_updated = today
+### SKILL: Add Person
+1. Check for duplicates by email or linkedin_url
+2. Generate person_id (format: p-xxx-N)
+3. Verify company_id exists if provided
+4. Ensure email OR phone OR telegram_username is set
+5. Add row to contacts/people.csv
+6. Set created_date = today, last_updated = today
 
-### SKILL: Update CRM Record
+### SKILL: Add Lead
+1. Verify company_id exists
+2. Verify product_id exists (or create product first)
+3. Generate lead_id (format: lead-xxx-N)
+4. Add row to relationships/leads.csv
+5. Set stage = "new", created_date = today
 
-1. Find record by PK (linkedin_url or website)
+### SKILL: Update Record
+1. Find record by PK
 2. Read current values
 3. Update only specified fields
 4. ALWAYS set last_updated = today
-5. If status changed → add note explaining why
+5. If status changed -> add note explaining why
+
+### SKILL: Log Activity
+After any communication:
+1. Generate activity_id
+2. Add row to activities.csv with type, channel, direction
+3. Update person's last_contact field
+4. Update lead's next_action_date if relevant
 
 ### SKILL: Query CRM
-
-Common queries:
 ```python
 import pandas as pd
 
-# Hot leads ready for outreach
-df = pd.read_csv('sales/crm/crm_people_master.csv')
-hot = df[(df['priority'] == 'hot') & (df['status'] == 'researched')]
-
-# By source
-df[df['source_tags'].str.contains('yc', na=False)]
+# Hot leads
+leads = pd.read_csv('sales/crm/relationships/leads.csv')
+hot = leads[leads['priority'] == 'critical']
 
 # Follow-ups due today
 from datetime import date
-df[df['next_followup_date'] == str(date.today())]
+leads[leads['next_action_date'] == str(date.today())]
+
+# Client revenue
+clients = pd.read_csv('sales/crm/relationships/clients.csv')
+clients[clients['status'] == 'active']['mrr'].sum()
 ```
 
-### SKILL: Log Outreach Activity
-
-After ANY outreach:
-1. Add row to crm_outreach_activities.csv
-2. Update person's last_contact_date
-3. Set next_followup_date (typically +7 days)
-4. Update person's status if needed
-
 ### SKILL: Research Lead
+Before marking as "qualified":
+1. Check company website
+2. Check LinkedIn profiles
+3. Look for recent signals (funding, hiring, product)
+4. Update lead notes with findings
+5. Update stage: new -> qualified
 
-Before marking as "researched":
-1. Check company website (is it active?)
-2. Check LinkedIn company page
-3. Check person's LinkedIn profile
-4. Look for recent activity (posts, news)
-5. Find personalization hook
-6. Document in personalization_hook field
-7. Update status: new → researched
+### SKILL: Convert Lead to Client
+When lead stage = "won":
+1. Create client record in clients.csv
+2. Create deal record in deals.csv
+3. Link primary_contact_id
+4. Update lead stage to "won"
 
 ---
 
 ## Outreach Principles
 
-1. **EQUAL TO EQUAL** — we're business partners, not begging
-2. **CONTEXT IS CRITICAL** — check conversation history first
-3. **SPECIFIC HYPOTHESIS** — not generic "we can help"
-4. **DIRECT QUESTION** — ask if problem is relevant
-5. **EASY OUT** — let them say no gracefully
+1. **EQUAL TO EQUAL** -- business partners, not begging
+2. **CONTEXT IS CRITICAL** -- check conversation history first
+3. **SPECIFIC HYPOTHESIS** -- not generic "we can help"
+4. **DIRECT QUESTION** -- ask if problem is relevant
+5. **EASY OUT** -- let them say no gracefully
 
 ### BANNED phrases:
 - "If you need..."
@@ -204,44 +197,16 @@ Before marking as "researched":
 - "Happy to chat"
 - "Congrats on funding!" (as opener)
 
-### Message structure:
-1. Hypothesis about their business
-2. Where the pain might be
-3. Direct question (is this a problem?)
-4. Easy out
-
 ---
 
-## Common Requests
+## Validation Rules
 
-### "Show hot leads"
-```bash
-grep ",hot," sales/crm/crm_companies_master.csv
-```
+Before ANY write:
+- [ ] Required fields are present (see schema.yaml)
+- [ ] Foreign keys reference existing records
+- [ ] Enum values are valid
+- [ ] last_updated = today
+- [ ] No duplicate PKs
+- [ ] Date format is YYYY-MM-DD
 
-### "Who needs follow-up today?"
-```python
-import pandas as pd
-from datetime import date
-df = pd.read_csv('sales/crm/crm_people_master.csv')
-df[df['next_followup_date'] == str(date.today())]
-```
-
-### "Add company X to CRM"
-→ Use SKILL: Add New Lead
-
-### "Research person Y"
-→ Use SKILL: Research Lead
-
-### "Log that I contacted Z"
-→ Use SKILL: Log Outreach Activity
-
----
-
-## Tips
-
-1. **Always update last_updated** when changing any record
-2. **Log every outreach** to build learnings
-3. **Check conversation history** before writing to someone again
-4. **Keep messages short** (3-5 sentences max)
-5. **Work in small increments** — one change at a time
+Run: `python3 scripts/validate_csv.py`

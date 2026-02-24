@@ -3,201 +3,236 @@
 ## Morning Routine (15 min)
 
 ### 1. Check Follow-ups
-```bash
-# People with follow-up due today
-grep "$(date +%Y-%m-%d)" sales/crm/crm_people_master.csv | grep "next_followup"
+
+Ask your AI assistant:
+
+> "Show leads where next_action_date is today"
+> "Who needs follow-up this week?"
+
+Or query directly:
+```python
+import pandas as pd
+from datetime import date
+
+leads = pd.read_csv('sales/crm/relationships/leads.csv')
+today = str(date.today())
+due = leads[leads['next_action_date'] <= today]
+print(due[['lead_id', 'company_id', 'next_action', 'next_action_date']])
 ```
 
-Or ask Cursor:
-> "Show people where next_followup_date is today"
+### 2. Check Pipeline
 
-### 2. Check Hot Leads
-```bash
-grep ",hot," sales/crm/crm_people_master.csv | grep ",new,\|,researched,"
-```
+> "Show all leads by stage"
+> "What's in negotiation right now?"
 
-Or ask Cursor:
-> "Show hot leads that haven't been contacted yet"
+### 3. Check Deals
+
+> "Any deals waiting for invoice?"
+> "What's been delivered but not invoiced?"
 
 ---
 
-## Research Flow
+## Adding New Contacts
 
-### Step 1: Pick a Lead
-- Priority: hot > medium > low
-- Status: new (needs research)
+### Step 1: Add Company
 
-### Step 2: Research Checklist
+> "Add company Acme Inc, AI startup, based in San Francisco"
 
-For each lead, check:
+What happens:
+1. Check for duplicates by website
+2. Generate `company_id` (format: `comp-xxx`)
+3. Add to `contacts/companies.csv`
+4. Set `created_date` and `last_updated`
 
-1. **Company website**
-   - What do they do?
-   - What technology?
-   - Any recent news?
+### Step 2: Add People
 
-2. **LinkedIn Company Page**
-   - Size/employees
-   - Recent posts
-   - Job openings (signals!)
+> "Add John Smith, CEO at Acme, email john@acme.com"
 
-3. **LinkedIn Person Profile**
-   - Current role
-   - Background
-   - Recent activity (posts, comments)
-   - Mutual connections
-   - Featured section
+What happens:
+1. Check for duplicates by email/LinkedIn
+2. Generate `person_id` (format: `p-xxx-N`)
+3. Verify `company_id` exists
+4. Ensure email OR phone OR telegram_username
+5. Add to `contacts/people.csv`
 
-4. **Funding/Signals**
-   - Crunchbase
-   - TechCrunch
-   - Recent announcements
+---
 
-### Step 3: Document Findings
+## Lead Management
 
-Update CRM record:
-- `personalization_hook` = 1 sentence hook
-- `hook_source_url` = where you found it
-- `notes` = additional context
-- `status` = researched
-- `last_updated` = today
+### Creating a Lead
+
+> "Create lead for Acme -- interested in our data labeling service"
+
+What happens:
+1. Verify company exists (or create first)
+2. Verify product exists
+3. Generate `lead_id` (format: `lead-xxx-N`)
+4. Set `stage = new`, link company and product
+5. Add to `relationships/leads.csv`
+
+### Lead Pipeline
+
+```
+new -> qualified -> proposal -> negotiation -> won / lost
+```
+
+### Qualifying a Lead
+
+Before moving to "qualified":
+1. Check company website
+2. Check LinkedIn profiles
+3. Look for signals (funding, hiring, product launches)
+4. Update lead notes with findings
+5. Set priority (low / medium / high / critical)
+
+> "Move lead-acme-1 to qualified, they just raised Series A"
+
+### Converting a Lead
+
+When a lead is won:
+1. Update lead stage to "won"
+2. Create client record in `clients.csv`
+3. Create deal record in `deals.csv`
+4. Link primary contact
+
+> "Convert lead-acme-1 to client -- they signed the contract, $5000/mo"
+
+---
+
+## Activity Tracking
+
+### Log Every Touchpoint
+
+> "Log call with John at Acme -- discussed pricing, will follow up Friday"
+
+What gets recorded in `activities.csv`:
+- **type**: call / email / meeting / message / note
+- **channel**: email / telegram / whatsapp / phone / in_person / linkedin
+- **direction**: inbound / outbound
+- **subject** and **notes**
+
+After logging:
+1. Person's `last_contact` is updated
+2. Lead's `next_action_date` is updated if relevant
 
 ---
 
 ## Outreach Flow
 
 ### Step 1: Check History
-> "What's the conversation history with [person]?"
 
-Look for:
-- Previous messages
-- Previous responses
-- Previous rejections
+> "What's the conversation history with John at Acme?"
 
 ### Step 2: Draft Message
 
-Use `sales/outreach/OUTREACH_PROMPT.md` template:
-- Scenario A = First contact
-- Scenario B = Follow-up (no response)
-- Scenario C = Re-engagement (after rejection)
+Use `sales/outreach/OUTREACH_PROMPT.md` template.
+
+Key principles:
+- Equal to equal -- business partners, not begging
+- Specific hypothesis about their problem
+- Direct question -- ask if problem is relevant
+- Easy out -- let them say no gracefully
 
 ### Step 3: Send & Log
 
-After sending:
-1. Log in crm_outreach_activities.csv:
-   - linkedin_url
-   - date = today
-   - channel = linkedin/email/etc
-   - activity_type = dm/followup/etc
-   - message_preview (first 100 chars)
-   - result = sent
-   - audience_segment
-   - hook_type
+After sending, log the activity:
 
-2. Update person:
-   - status = contacted
-   - last_contact_date = today
-   - next_followup_date = +7 days
-   - last_updated = today
+> "Log email sent to John with pricing proposal"
 
 ---
 
-## Response Handling
+## Deal Tracking
 
-### When you get a response:
+### Deal Lifecycle
 
-1. **Update activity** with response_quality:
-   - meeting = they want to meet
-   - positive = interested, asking questions
-   - neutral = polite but non-committal
-   - negative = not interested
+```
+proposal -> negotiation -> won -> in_progress -> delivered -> invoiced -> paid
+```
 
-2. **Update person status**:
-   - → responded (if positive/neutral)
-   - → meeting (if meeting scheduled)
-   - → lost (if explicitly rejected)
+### Common Actions
 
-3. **Set next action**:
-   - Schedule meeting
-   - Send info
-   - Follow up in X days
+> "Create deal for Acme pilot -- $5000 USD"
+> "Mark deal-acme-1 as delivered"
+> "Invoice deal-acme-1, invoice number INV-2026-001"
+> "Mark deal-acme-1 as paid, received $5000"
+
+---
+
+## Client Management
+
+### Active Clients
+
+> "Show all active clients"
+> "What's our total MRR?"
+> "Which clients have contracts ending this month?"
+
+### Client Statuses
+
+```
+active / paused / churned
+```
 
 ---
 
 ## Weekly Review (30 min)
 
-### 1. Update Learnings
-```bash
-python3 sales/learnings/update_salience.py --recalc
-```
+### 1. Pipeline Review
 
-### 2. Review Metrics
+> "Show pipeline summary -- how many leads per stage?"
+> "What moved this week?"
 
-Ask Cursor:
-> "How many leads did I contact this week?"
-> "What's my response rate?"
-> "Which hooks got responses?"
+### 2. Revenue Check
 
-### 3. Clean Up
+> "What's total MRR from active clients?"
+> "Any deals waiting for payment?"
+> "Show unpaid invoices"
 
-- Mark stale leads as cold
-- Archive lost opportunities
-- Update priorities based on learnings
+### 3. Activity Summary
 
----
+> "How many activities this week?"
+> "Who haven't I contacted in 2 weeks?"
 
-## New Hypothesis Workflow
+### 4. Clean Up
 
-When exploring a new market segment:
-
-### 1. Create Folder
-```bash
-mkdir sales/leads/[hypothesis_name]
-```
-
-### 2. Collect Raw Data
-- Scrape/collect companies
-- Save to `sales/leads/[hypothesis]/companies.csv`
-
-### 3. Validate & Dedupe
-- Check each company is real
-- Check for duplicates in master
-
-### 4. Merge to Master
-Ask Cursor:
-> "Merge companies from [hypothesis] to CRM, tag with source [hypothesis_name]"
-
-### 5. Find Decision Makers
-> "Find CEO and CTO for these companies on LinkedIn"
-
-### 6. Research & Outreach
-Follow normal flow.
+- Update stale leads (move to lost if no response)
+- Update next_action_date for active leads
+- Verify all recent activities are logged
 
 ---
 
-## Common Requests to Cursor
+## Validation
+
+Always validate before committing:
+
+```bash
+python3 scripts/validate_csv.py
+```
+
+Auto-fix missing `last_updated` fields:
+
+```bash
+python3 scripts/validate_csv.py --fix
+```
+
+---
+
+## Common Queries
 
 ### Finding Leads
-- "Find YC W2025 AI startups"
-- "Search LinkedIn for ML engineers at [company]"
-- "Find companies hiring for data labeling"
+- "Show hot leads"
+- "Find all qualified leads for [product]"
+- "What leads need follow-up today?"
 
-### CRM Queries
-- "Show all hot leads"
-- "Count leads by status"
-- "Who haven't I contacted in 2 weeks?"
+### Pipeline Analysis
+- "Count leads by stage"
+- "Show leads by priority"
+- "What's the estimated pipeline value?"
 
-### Research
-- "Research [person name] at [company]"
-- "Find recent news about [company]"
-- "Check [person]'s recent LinkedIn posts"
+### Client Queries
+- "Show active clients sorted by MRR"
+- "Which clients are up for renewal?"
 
-### Outreach
-- "Draft a message for [person] based on their recent post"
-- "Write a follow-up for [person] - they didn't respond"
-- "Log that I contacted [person] via LinkedIn"
-
-### Analysis
-- "What's my response rate this month?"
-- "Which audience segment converts best?"
-- "Show me learnings report"
+### Activity Queries
+- "Show all activities with Acme this month"
+- "What was my last contact with John?"
+- "How many meetings this week?"

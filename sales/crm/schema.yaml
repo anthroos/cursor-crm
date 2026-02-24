@@ -1,0 +1,176 @@
+# CRM Schema Definition
+# Machine-readable rules for data validation
+
+version: "1.0"
+
+tables:
+  companies:
+    file: contacts/companies.csv
+    primary_key: company_id
+    required:
+      - company_id
+      - name
+      - created_date
+      - last_updated
+    unique:
+      - company_id
+      - website  # if not null
+    id_format: "^comp-[a-z0-9-]+$"
+    enums:
+      type: [company, enterprise, ngo, individual]
+      size: [small, medium, enterprise, individual]
+
+  people:
+    file: contacts/people.csv
+    primary_key: person_id
+    required:
+      - person_id
+      - first_name
+      - created_date
+      - last_updated
+    unique:
+      - person_id
+      - email  # if not null
+    foreign_keys:
+      company_id: companies.company_id
+    id_format: "^p-[a-z0-9]+-\\d+$"
+    rules:
+      - name: contact_info_required
+        description: "Must have email OR phone OR telegram_username"
+        check: "email IS NOT NULL OR phone IS NOT NULL OR telegram_username IS NOT NULL"
+
+  products:
+    file: products.csv
+    primary_key: product_id
+    required:
+      - product_id
+      - business_line
+      - name
+      - type
+      - status
+      - created_date
+    unique:
+      - product_id
+    id_format: "^prod-[a-z0-9-]+$"
+    enums:
+      type: [service, reseller, community]
+      status: [active, paused, discontinued]
+
+  clients:
+    file: relationships/clients.csv
+    primary_key: client_id
+    required:
+      - client_id
+      - company_id
+      - product_id
+      - status
+      - created_date
+      - last_updated
+    unique:
+      - client_id
+    composite_unique:
+      - [company_id, product_id]
+    foreign_keys:
+      company_id: companies.company_id
+      product_id: products.product_id
+      primary_contact_id: people.person_id
+    id_format: "^cli-[a-z0-9]+-\\d+$"
+    enums:
+      status: [active, paused, churned]
+
+  partners:
+    file: relationships/partners.csv
+    primary_key: partner_id
+    required:
+      - partner_id
+      - company_id
+      - product_id
+      - partnership_type
+      - status
+      - created_date
+      - last_updated
+    unique:
+      - partner_id
+    composite_unique:
+      - [company_id, product_id]
+    foreign_keys:
+      company_id: companies.company_id
+      product_id: products.product_id
+      primary_contact_id: people.person_id
+    id_format: "^ptnr-[a-z0-9]+-\\d+$"
+    enums:
+      partnership_type: [training_partner, workforce_partner, reseller_agreement, referral_partner]
+      status: [active, paused, ended]
+
+  leads:
+    file: relationships/leads.csv
+    primary_key: lead_id
+    required:
+      - lead_id
+      - company_id
+      - product_id
+      - stage
+      - created_date
+      - last_updated
+    unique:
+      - lead_id
+    foreign_keys:
+      company_id: companies.company_id
+      product_id: products.product_id
+      primary_contact_id: people.person_id
+    id_format: "^lead-[a-z0-9]+-\\d+$"
+    enums:
+      stage: [new, qualified, proposal, negotiation, won, lost]
+      priority: [low, medium, high, critical]
+    rules:
+      - name: won_lead_has_client
+        description: "Won lead must have corresponding client record"
+        check: "IF stage == 'won' THEN EXISTS client WHERE client.company_id == lead.company_id AND client.product_id == lead.product_id"
+
+  activities:
+    file: activities.csv
+    primary_key: activity_id
+    required:
+      - activity_id
+      - type
+      - channel
+      - date
+      - created_by
+    foreign_keys:
+      person_id: people.person_id
+      company_id: companies.company_id
+      product_id: products.product_id
+    enums:
+      type: [call, email, meeting, message, note]
+      channel: [email, telegram, whatsapp, phone, in_person, linkedin]
+      direction: [inbound, outbound]
+
+  deals:
+    file: relationships/deals.csv
+    primary_key: deal_id
+    required:
+      - deal_id
+      - client_id
+      - name
+      - value
+      - currency
+      - stage
+      - created_date
+    unique:
+      - deal_id
+    foreign_keys:
+      client_id: clients.client_id
+    id_format: "^deal-[a-z0-9]+-\\d+$"
+    enums:
+      stage: [proposal, negotiation, won, in_progress, delivered, invoiced, paid, lost]
+      currency: [USD, EUR, UAH, PLN, SEK, JPY]
+    rules:
+      - name: paid_requires_invoice
+        description: "Paid deal must have invoice_date"
+        check: "IF stage == 'paid' THEN invoice_date IS NOT NULL"
+
+# Global validation settings
+validation:
+  date_format: "%Y-%m-%d"
+  email_pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+  require_last_updated_on_change: true

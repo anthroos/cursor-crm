@@ -1,188 +1,215 @@
 # CRM Schema Reference
 
+Full machine-readable schema: `sales/crm/schema.yaml`
+
 ## Overview
 
-| Table | Primary Key | Description |
-|-------|-------------|-------------|
-| crm_companies_master.csv | website | All companies |
-| crm_people_master.csv | linkedin_url | All contacts |
-| crm_outreach_activities.csv | activity_id | Activity log |
-| crm_sources.csv | linkedin_url + source_tag | Source tracking |
+| Table | File | Primary Key | Description |
+|-------|------|-------------|-------------|
+| Companies | contacts/companies.csv | company_id | All companies |
+| People | contacts/people.csv | person_id | All contacts |
+| Products | products.csv | product_id | Your offerings |
+| Leads | relationships/leads.csv | lead_id | Sales pipeline |
+| Clients | relationships/clients.csv | client_id | Active clients |
+| Partners | relationships/partners.csv | partner_id | Partner relationships |
+| Deals | relationships/deals.csv | deal_id | Deal & invoice tracking |
+| Activities | activities.csv | activity_id | All communications |
 
 ---
 
-## crm_companies_master.csv
+## Contacts
+
+### companies.csv
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| company_id | UUID | Yes | Unique identifier |
-| company_name | string | Yes | Company name |
-| website | string | Yes (PK) | Company website (unique identifier) |
-| linkedin_company_url | string | No | LinkedIn company page URL |
-| stage | enum | No | seed / series_a / series_b / growth |
-| funding_amount | string | No | e.g., "$5M", "$500K" |
-| funding_date | YYYY-MM | No | When funding was announced |
-| ai_focus | string | No | AI/ML focus area |
-| vertical | string | No | Industry vertical |
-| geo | string | No | Geographic location |
-| signal_type | enum | No | funding / hiring / product_launch / partnership |
-| signal_source_url | URL | If signal_type set | Source of the signal |
-| primary_source | string | No | Main source (one value) |
-| source_tags | string | No | Comma-separated source tags |
-| status | enum | Yes | new / researched / contacted / meeting / won / lost |
-| priority | enum | Yes | hot / medium / low |
-| contact_email | string | No | General contact email |
-| notes | string | No | Free-form notes |
-| created_date | YYYY-MM-DD | Yes | When record was created |
-| last_updated | YYYY-MM-DD | Yes | When record was last modified |
-| lead_status | enum | No | Lead funnel stage |
-| next_action | string | No | Next action to take |
-| next_action_due | YYYY-MM-DD | No | When next action is due |
-| next_action_owner | string | No | Who owns the action |
-| last_inbound_date | YYYY-MM-DD | No | Last inbound contact |
-| last_outbound_date | YYYY-MM-DD | No | Last outbound contact |
+| `company_id` | string | Yes | PK (format: comp-xxx) |
+| `name` | string | Yes | Company name |
+| `website` | string | No | Company website (unique if set) |
+| `linkedin_url` | string | No | LinkedIn company page URL |
+| `type` | enum | No | company / enterprise / ngo / individual |
+| `industry` | string | No | Industry vertical |
+| `geo` | string | No | Geographic location |
+| `size` | enum | No | small / medium / enterprise / individual |
+| `description` | string | No | Free-form description |
+| `created_date` | YYYY-MM-DD | Yes | When record was created |
+| `last_updated` | YYYY-MM-DD | Yes | When record was last modified |
 
----
-
-## crm_people_master.csv
+### people.csv
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| person_id | UUID | Yes | Unique identifier |
-| linkedin_url | string | Yes (PK) | LinkedIn profile URL (must contain "linkedin.com") |
-| first_name | string | Yes | First name |
-| last_name | string | Yes | Last name |
-| company_website | string | No | FK to crm_companies_master |
-| company_name | string | No | Company name |
-| role | string | No | Job title |
-| email | string | No | Email address |
-| connection_degree | enum | No | 1 / 2 / 3 |
-| mutual_connections_count | integer | No | Number of mutual connections |
-| primary_source | string | No | Main source (one value) |
-| source_tags | string | No | Comma-separated source tags |
-| status | enum | Yes | new / researched / contacted / responded / meeting / won / lost |
-| priority | enum | Yes | hot / medium / low |
-| personalization_hook | string | No | 1 sentence personalization hook |
-| hook_source_url | URL | No | Source of the hook |
-| notes | string | No | Free-form notes |
-| last_contact_date | YYYY-MM-DD | No | When last contacted |
-| next_followup_date | YYYY-MM-DD | No | When to follow up |
-| created_date | YYYY-MM-DD | Yes | When record was created |
-| last_updated | YYYY-MM-DD | Yes | When record was last modified |
+| `person_id` | string | Yes | PK (format: p-xxx-N) |
+| `first_name` | string | Yes | First name |
+| `last_name` | string | No | Last name |
+| `email` | string | No | Email address (unique if set) |
+| `phone` | string | No | Phone number |
+| `linkedin_url` | string | No | LinkedIn profile URL |
+| `company_id` | string | No | FK to companies |
+| `role` | string | No | Job title |
+| `notes` | string | No | Free-form notes |
+| `created_date` | YYYY-MM-DD | Yes | When record was created |
+| `last_updated` | YYYY-MM-DD | Yes | When record was last modified |
+| `telegram_username` | string | No | Telegram handle |
+| `last_contact` | YYYY-MM-DD | No | Last contact date |
+
+**Rule:** Must have at least one of: email, phone, or telegram_username.
 
 ---
 
-## crm_outreach_activities.csv
+## Products
+
+### products.csv
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| activity_id | UUID | Yes | Unique identifier |
-| linkedin_url | string | Yes | FK to crm_people_master |
-| date | YYYY-MM-DD | Yes | When activity happened |
-| channel | enum | Yes | linkedin / email / twitter / intro |
-| activity_type | enum | Yes | dm / request_intro / followup / email_sent / call / research_done |
-| message_preview | string | No | First 100 chars of message |
-| result | enum | No | sent / bounced / replied / no_response / accepted / rejected |
-| next_followup_date | YYYY-MM-DD | No | When to follow up |
-| notes | string | No | Free-form notes |
-| audience_segment | enum | No | yc_founder / big_tech_alumni / ukrainian / enterprise / seed_stage / series_a / other |
-| hooks_checked | string | No | Comma-separated list of hooks checked |
-| hooks_available | string | No | Comma-separated list of available hooks |
-| hook_type | enum | No | funding / job_signal / mutual_connection / recent_post / pain_point / other |
-| response_quality | enum | No | none / negative / neutral / positive / meeting |
+| `product_id` | string | Yes | PK (format: prod-xxx) |
+| `business_line` | string | Yes | Business unit |
+| `name` | string | Yes | Product name |
+| `type` | enum | Yes | service / reseller / community |
+| `description` | string | No | Product description |
+| `owner` | string | No | Product owner |
+| `status` | enum | Yes | active / paused / discontinued |
+| `created_date` | YYYY-MM-DD | Yes | When created |
 
 ---
 
-## crm_sources.csv
+## Relationships
+
+### leads.csv
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| linkedin_url | string | Yes | FK to crm_people_master |
-| source_tag | string | Yes | Source identifier |
-| source_date | YYYY-MM-DD | Yes | When source was added |
+| `lead_id` | string | Yes | PK (format: lead-xxx-N) |
+| `company_id` | string | Yes | FK to companies |
+| `product_id` | string | Yes | FK to products |
+| `stage` | enum | Yes | new / qualified / proposal / negotiation / won / lost |
+| `source` | string | No | Lead source |
+| `priority` | enum | No | low / medium / high / critical |
+| `primary_contact_id` | string | No | FK to people |
+| `estimated_value` | float | No | Expected deal value |
+| `currency` | string | No | Currency code |
+| `next_action` | string | No | What to do next |
+| `next_action_date` | YYYY-MM-DD | No | When to do it |
+| `notes` | string | No | Free-form notes |
+| `created_date` | YYYY-MM-DD | Yes | When created |
+| `last_updated` | YYYY-MM-DD | Yes | When modified |
+| `last_contact_via_primary` | YYYY-MM-DD | No | Last contact via primary contact |
+
+### clients.csv
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `client_id` | string | Yes | PK (format: cli-xxx-N) |
+| `company_id` | string | Yes | FK to companies |
+| `product_id` | string | Yes | FK to products |
+| `status` | enum | Yes | active / paused / churned |
+| `contract_start` | YYYY-MM-DD | No | Contract start date |
+| `contract_end` | YYYY-MM-DD | No | Contract end date |
+| `mrr` | float | No | Monthly recurring revenue |
+| `currency` | string | No | Currency code |
+| `primary_contact_id` | string | No | FK to people |
+| `notes` | string | No | Free-form notes |
+| `created_date` | YYYY-MM-DD | Yes | When created |
+| `last_updated` | YYYY-MM-DD | Yes | When modified |
+| `last_contact_via_primary` | YYYY-MM-DD | No | Last contact via primary contact |
+
+### partners.csv
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `partner_id` | string | Yes | PK (format: ptnr-xxx-N) |
+| `company_id` | string | Yes | FK to companies |
+| `product_id` | string | Yes | FK to products |
+| `partnership_type` | enum | Yes | training_partner / workforce_partner / reseller_agreement / referral_partner |
+| `status` | enum | Yes | active / paused / ended |
+| `since` | YYYY-MM-DD | No | Partnership start date |
+| `primary_contact_id` | string | No | FK to people |
+| `revenue_share` | string | No | Revenue share terms |
+| `notes` | string | No | Free-form notes |
+| `created_date` | YYYY-MM-DD | Yes | When created |
+| `last_updated` | YYYY-MM-DD | Yes | When modified |
+
+### deals.csv
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `deal_id` | string | Yes | PK (format: deal-xxx-N) |
+| `client_id` | string | Yes | FK to clients |
+| `name` | string | Yes | Deal description |
+| `value` | float | Yes | Deal value |
+| `currency` | enum | Yes | USD / EUR / UAH / PLN / SEK / JPY |
+| `stage` | enum | Yes | proposal / negotiation / won / in_progress / delivered / invoiced / paid / lost |
+| `created_date` | YYYY-MM-DD | Yes | When created |
+| `delivered_date` | YYYY-MM-DD | No | When delivered |
+| `invoice_date` | YYYY-MM-DD | No | When invoiced |
+| `invoice_number` | string | No | Invoice reference |
+| `paid_date` | YYYY-MM-DD | No | When paid |
+| `paid_amount` | float | No | Amount received |
+| `notes` | string | No | Free-form notes |
+
+**Rule:** If stage = "paid", invoice_date must be set.
 
 ---
 
-## Status Values
+## Activities
 
-### Company/Person Status (Funnel)
-```
-new → researched → contacted → responded → meeting → won
-                                                   ↘ lost
-```
+### activities.csv
 
-### Priority
-```
-hot    = High priority, contact ASAP
-medium = Normal priority
-low    = Low priority, can wait
-```
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `activity_id` | string | Yes | PK |
+| `person_id` | string | No | FK to people |
+| `company_id` | string | No | FK to companies |
+| `product_id` | string | No | FK to products |
+| `type` | enum | Yes | call / email / meeting / message / note |
+| `channel` | enum | Yes | email / telegram / whatsapp / phone / in_person / linkedin |
+| `direction` | enum | No | inbound / outbound |
+| `subject` | string | No | Short description |
+| `notes` | string | No | Detailed notes |
+| `date` | YYYY-MM-DD | Yes | When it happened |
+| `created_by` | string | Yes | Who logged it |
 
-### Channel
-```
-linkedin = LinkedIn DM or connection request
-email    = Email
-twitter  = Twitter/X DM
-intro    = Introduction via mutual connection
-```
+---
 
-### Activity Type
+## Pipeline Stages
+
+### Lead Pipeline
 ```
-dm             = Direct message
-request_intro  = Asked for introduction
-followup       = Follow-up message
-email_sent     = Email sent
-call           = Phone/video call
-research_done  = Research completed
+new -> qualified -> proposal -> negotiation -> won / lost
 ```
 
-### Response Quality (for Learning Loop)
+### Deal Lifecycle
 ```
-meeting  = Scheduled a meeting (+0.3)
-positive = Positive response (+0.2)
-neutral  = Neutral response (+0.1)
-none     = No response (-0.05)
-negative = Negative response (-0.1)
-```
-
-### Audience Segment
-```
-yc_founder      = YC alumni
-techstars       = Techstars alumni
-big_tech_alumni = Ex-FAANG
-ukrainian       = Ukrainian founder
-enterprise      = Enterprise company
-seed_stage      = Seed stage startup
-series_a        = Series A+ startup
-other           = Other
-```
-
-### Hook Type
-```
-funding           = Recent funding announcement
-job_signal        = Hiring for relevant role
-mutual_connection = Shared connection
-recent_post       = Recent LinkedIn/Twitter activity
-pain_point        = Hypothesis about their pain
-other             = Other hook
+proposal -> negotiation -> won -> in_progress -> delivered -> invoiced -> paid
+                                                                      ↘ lost
 ```
 
 ---
 
 ## Validation Rules
 
+See `sales/crm/schema.yaml` for machine-readable rules.
+
 ### Before adding a Company:
-- [ ] website OR company_name is not empty
-- [ ] If signal_type is set, signal_source_url must be set
-- [ ] Check if website already exists (dedupe)
+- [ ] company_id is unique
+- [ ] name is not empty
 - [ ] Set created_date and last_updated to today
 
 ### Before adding a Person:
-- [ ] linkedin_url contains "linkedin.com"
+- [ ] person_id is unique
 - [ ] first_name is not empty
-- [ ] last_name is not empty
-- [ ] Check if linkedin_url already exists (dedupe)
+- [ ] Has email OR phone OR telegram_username
+- [ ] If company_id set, it must exist in companies
+- [ ] Set created_date and last_updated to today
+
+### Before adding a Lead:
+- [ ] company_id exists in companies
+- [ ] product_id exists in products
+- [ ] stage is valid enum
 - [ ] Set created_date and last_updated to today
 
 ### When updating any record:
 - [ ] ALWAYS update last_updated to today
+- [ ] Foreign keys must reference existing records
+- [ ] Enum values must be valid

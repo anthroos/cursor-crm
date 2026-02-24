@@ -1,149 +1,173 @@
-# CRM Flow — System Map
+# CRM Flow -- System Map
 
-## Mermaid Diagram
+## Overview
 
 ```mermaid
 flowchart LR
-    subgraph SOURCES["Sources"]
-        S1[LinkedIn Search]
-        S2[Crunchbase]
-        S3[Job Sites]
-        S4[Accelerators]
-        S5[News/Funding]
-        S6[Referrals]
+    subgraph CONTACTS["Contacts"]
+        C1[companies.csv]
+        C2[people.csv]
     end
 
-    subgraph RAW["Raw Intake"]
-        R1[leads_companies_raw.csv]
-        R2[leads_people_raw.csv]
-        R3[hypothesis folders]
+    subgraph PRODUCTS["Products"]
+        P1[products.csv]
     end
 
-    subgraph CRM["Master CRM"]
-        subgraph TABLES["Tables"]
-            C1[crm_companies_master.csv]
-            C2[crm_people_master.csv]
-            C3[crm_outreach_activities.csv]
-        end
-        subgraph STATUS["Dual Status"]
-            ST1["status: new→researched→contacted→meeting→won/lost"]
-            ST2["priority: hot / medium / low"]
-        end
+    subgraph PIPELINE["Sales Pipeline"]
+        L1[leads.csv]
+        CL1[clients.csv]
+        PT1[partners.csv]
+        D1[deals.csv]
     end
 
-    subgraph EXEC["Execution"]
-        E1[Research]
-        E2[Outreach]
-        E3[Follow-up]
+    subgraph ACTIVITY["Activity Log"]
+        A1[activities.csv]
     end
 
     subgraph CHANNELS["Channels"]
-        CH1[LinkedIn DM]
-        CH2[Email]
-        CH3[Twitter]
-        CH4[Intros]
+        CH1[Email]
+        CH2[Telegram]
+        CH3[WhatsApp]
+        CH4[Phone]
+        CH5[LinkedIn]
+        CH6[In Person]
     end
 
-    subgraph LEARN["Learning Loop"]
-        L1[Log activity with hooks]
-        L2[update_salience.py]
-        L3[learnings.csv]
-        L4[Research Priority]
-    end
-
-    subgraph PROMPTS["Prompts"]
-        P1[OUTREACH_PROMPT.md]
-        P2[Hook templates]
-    end
-
-    %% Flow
-    SOURCES --> RAW
-    RAW -->|dedupe & validate| CRM
-    CRM --> EXEC
-    EXEC --> CHANNELS
-    CHANNELS -->|last_contact dates| CRM
-    EXEC -->|log| LEARN
-    LEARN -->|strategy| EXEC
-    PROMPTS --> EXEC
+    %% Relationships
+    C1 --> L1
+    C1 --> CL1
+    C1 --> PT1
+    P1 --> L1
+    P1 --> CL1
+    P1 --> PT1
+    C2 -->|primary_contact| L1
+    C2 -->|primary_contact| CL1
+    CL1 --> D1
+    L1 -->|won| CL1
+    CHANNELS --> A1
+    A1 --> C2
+    A1 --> C1
 ```
 
 ---
 
-## Detailed Flow
+## Lead Pipeline
 
-### 1. LEAD INTAKE
+```mermaid
+flowchart LR
+    NEW[New] --> QUAL[Qualified]
+    QUAL --> PROP[Proposal]
+    PROP --> NEG[Negotiation]
+    NEG --> WON[Won]
+    NEG --> LOST[Lost]
 
-```
-Source (LinkedIn/Accelerator/Funding news)
-    ↓
-leads_*_raw.csv (staging)
-    ↓
-Validate & Dedupe
-    ↓
-crm_companies_master.csv (website as PK)
-crm_people_master.csv (linkedin_url as PK)
-```
+    WON -->|convert| CLIENT[Client Record]
+    WON -->|create| DEAL[Deal Record]
 
-### 2. RESEARCH PHASE
-
-```
-Pick lead from CRM (priority=hot, status=new)
-    ↓
-Determine audience_segment (yc_founder, enterprise...)
-    ↓
-Check hooks BY PRIORITY (from learnings.csv):
-    1. funding signal?
-    2. mutual connection?
-    3. recent post?
-    4. pain point hypothesis
-    ↓
-Record: hooks_checked, hooks_available, hook_used
-    ↓
-Update status: new → researched
+    style NEW fill:#e8f4fd
+    style QUAL fill:#d4edda
+    style PROP fill:#fff3cd
+    style NEG fill:#ffeaa7
+    style WON fill:#d4edda
+    style LOST fill:#f8d7da
+    style CLIENT fill:#d4edda
+    style DEAL fill:#d4edda
 ```
 
-### 3. OUTREACH PHASE
+---
 
-```
-Draft message using OUTREACH_PROMPT.md
-    ↓
-Send via channel (LinkedIn / Email / Twitter)
-    ↓
-Log to crm_outreach_activities.csv:
-    - audience_segment
-    - hook_type
-    - channel
-    - message_preview
-    ↓
-Update person status: researched → contacted
-```
+## Deal Lifecycle
 
-### 4. RESPONSE TRACKING
+```mermaid
+flowchart LR
+    PROP[Proposal] --> NEG[Negotiation]
+    NEG --> WON[Won]
+    WON --> IP[In Progress]
+    IP --> DEL[Delivered]
+    DEL --> INV[Invoiced]
+    INV --> PAID[Paid]
+    NEG --> LOST[Lost]
 
-```
-Check channels for responses
-    ↓
-Update response_quality:
-    - none / negative / neutral / positive / meeting
-    ↓
-Update person status if response:
-    - contacted → responded / meeting
+    style PROP fill:#e8f4fd
+    style NEG fill:#fff3cd
+    style WON fill:#d4edda
+    style IP fill:#d4edda
+    style DEL fill:#d4edda
+    style INV fill:#ffeaa7
+    style PAID fill:#d4edda
+    style LOST fill:#f8d7da
 ```
 
-### 5. LEARNING LOOP
+---
 
+## Data Flow
+
+```mermaid
+flowchart TD
+    subgraph INPUT["Input"]
+        I1[Research / Referral / Inbound]
+    end
+
+    subgraph CONTACTS["Contacts Layer"]
+        C1["companies.csv<br/>(company_id)"]
+        C2["people.csv<br/>(person_id)"]
+    end
+
+    subgraph QUALIFY["Qualification"]
+        Q1["products.csv<br/>(product_id)"]
+        Q2["leads.csv<br/>(lead_id)"]
+    end
+
+    subgraph CONVERT["Conversion"]
+        CV1["clients.csv<br/>(client_id)"]
+        CV2["partners.csv<br/>(partner_id)"]
+    end
+
+    subgraph REVENUE["Revenue"]
+        R1["deals.csv<br/>(deal_id)"]
+    end
+
+    subgraph LOG["Activity Log"]
+        L1["activities.csv<br/>(activity_id)"]
+    end
+
+    INPUT --> CONTACTS
+    C1 --> Q2
+    C2 -->|primary_contact| Q2
+    Q1 --> Q2
+    Q2 -->|won| CV1
+    Q2 -->|partnership| CV2
+    CV1 --> R1
+    CONTACTS <--> L1
+    Q2 <-->|updates| L1
+
+    style INPUT fill:#e8f4fd
+    style REVENUE fill:#d4edda
 ```
-Weekly: python3 update_salience.py --recalc
-    ↓
-Aggregates by hook_type + audience_segment
-    ↓
-Calculates salience (0.0 - 1.0)
-    ↓
-Outputs research priority:
-    yc_founder: funding → mutual → job_signal
-    enterprise: pain_point → job_signal → funding
-    ↓
-Next research uses updated priorities
+
+---
+
+## Activity Tracking Flow
+
+```mermaid
+flowchart TD
+    TOUCH[Touchpoint occurs] --> TYPE{What type?}
+
+    TYPE --> CALL[Call]
+    TYPE --> EMAIL[Email]
+    TYPE --> MEET[Meeting]
+    TYPE --> MSG[Message]
+    TYPE --> NOTE[Note]
+
+    CALL --> LOG[Log to activities.csv]
+    EMAIL --> LOG
+    MEET --> LOG
+    MSG --> LOG
+    NOTE --> LOG
+
+    LOG --> UPD1[Update person.last_contact]
+    LOG --> UPD2[Update lead.next_action_date]
+    LOG --> UPD3[Update last_updated on related records]
 ```
 
 ---
@@ -152,63 +176,71 @@ Next research uses updated priorities
 
 ```
 sales/
-├── leads/
-│   ├── leads_companies_raw.csv      ← Raw intake
-│   ├── leads_people_raw.csv
-│   └── [hypothesis]/                ← Experiment data
-│       └── *.csv
-│
 ├── crm/
-│   ├── crm_companies_master.csv     ← Master company data
-│   ├── crm_people_master.csv        ← Master people data
-│   ├── crm_outreach_activities.csv  ← Activity log + hooks
-│   └── crm_sources.csv              ← Source tracking
-│
-├── learnings/
-│   ├── learnings.csv                ← Salience scores
-│   ├── update_salience.py           ← Weekly recalc
-│   └── README.md
-│
+│   ├── contacts/
+│   │   ├── companies.csv        -- All companies (PK: company_id)
+│   │   └── people.csv           -- All contacts (PK: person_id)
+│   ├── products.csv             -- Products/services (PK: product_id)
+│   ├── relationships/
+│   │   ├── leads.csv            -- Sales pipeline (PK: lead_id)
+│   │   ├── clients.csv          -- Active clients (PK: client_id)
+│   │   ├── partners.csv         -- Partnerships (PK: partner_id)
+│   │   └── deals.csv            -- Deals & invoices (PK: deal_id)
+│   ├── activities.csv           -- All communications (PK: activity_id)
+│   └── schema.yaml              -- Machine-readable validation rules
 └── outreach/
-    └── OUTREACH_PROMPT.md           ← Message strategy
+    └── OUTREACH_PROMPT.md       -- Message templates
 ```
 
 ---
 
-## Status Flow
+## Foreign Key Map
 
-### Lead Funnel (status)
 ```
-new → researched → contacted → responded → meeting → won
-                                                   ↘ lost
-```
+companies.csv
+  ├──> people.csv (company_id)
+  ├──> leads.csv (company_id)
+  ├──> clients.csv (company_id)
+  ├──> partners.csv (company_id)
+  └──> activities.csv (company_id)
 
-### Priority Levels
-```
-hot    = Contact immediately
-medium = Contact this week
-low    = Contact when time permits
+products.csv
+  ├──> leads.csv (product_id)
+  ├──> clients.csv (product_id)
+  ├──> partners.csv (product_id)
+  └──> activities.csv (product_id)
+
+people.csv
+  ├──> leads.csv (primary_contact_id)
+  ├──> clients.csv (primary_contact_id)
+  ├──> partners.csv (primary_contact_id)
+  └──> activities.csv (person_id)
+
+clients.csv
+  └──> deals.csv (client_id)
 ```
 
 ---
 
-## Key Metrics to Track
+## Key Metrics
 
 | Metric | How to Calculate |
 |--------|------------------|
-| Leads in pipeline | Count where status != won/lost |
-| Hot leads | Count where priority = hot |
-| Response rate | (responded + meeting) / contacted |
-| Conversion rate | won / total contacted |
-| Avg time to response | Days from contacted to responded |
+| Pipeline value | Sum `estimated_value` where stage != won/lost |
+| Active leads | Count leads where stage not in (won, lost) |
+| Conversion rate | won / (won + lost) |
+| Monthly revenue | Sum `mrr` from active clients |
+| Outstanding invoices | Deals where stage = invoiced and paid_date is empty |
+| Avg deal size | Mean `value` from deals where stage = paid |
 
 ---
 
 ## Integration Points
 
-| Channel | Integration | What it provides |
-|---------|-------------|------------------|
-| **LinkedIn** | Manual / Browser | DM, connection requests |
-| **Email** | Gmail API | Send/receive tracking |
-| **Twitter** | Manual | DM outreach |
-| **Intros** | Manual | Track via mutual connections |
+| Channel | Integration | Guide |
+|---------|-------------|-------|
+| **Telegram** | Telethon API | [Setup](../integrations/telegram_api.md) |
+| **Gmail** | Gmail API | [Setup](../integrations/gmail.md) |
+| **WhatsApp** | Baileys | [Setup](../integrations/whatsapp.md) |
+| **LinkedIn** | Manual / CDP | [Setup](../integrations/telegram_remote.md) |
+| **cursor-pm** | CSV cross-reference | [Setup](../integrations/cursor-pm.md) |

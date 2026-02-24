@@ -4,10 +4,11 @@ Validate CRM CSV files for common issues.
 
 Usage:
     python3 scripts/validate_csv.py
-    python3 scripts/validate_csv.py --fix  # Auto-fix what can be fixed
+    python3 scripts/validate_csv.py --fix  # Auto-fix missing last_updated
 """
 
 import argparse
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -15,198 +16,251 @@ import pandas as pd
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-CRM_DIR = BASE_DIR / "sales/crm"
+CRM_DIR = BASE_DIR / "sales" / "crm"
 
 
 def today_iso() -> str:
     return datetime.now().strftime("%Y-%m-%d")
 
 
+def load_csv(path):
+    """Load CSV, return empty DataFrame if file is empty."""
+    try:
+        df = pd.read_csv(path)
+        return df
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
+
+
 def validate_companies(fix: bool = False) -> list[str]:
-    """Validate crm_companies_master.csv"""
+    """Validate contacts/companies.csv"""
     errors = []
-    path = CRM_DIR / "crm_companies_master.csv"
-    
+    path = CRM_DIR / "contacts" / "companies.csv"
+
     if not path.exists():
-        return ["companies file not found"]
-    
-    df = pd.read_csv(path)
-    
+        return ["contacts/companies.csv not found"]
+
+    df = load_csv(path)
     if df.empty:
-        return []  # Empty is OK for starter
-    
-    # Check required fields
+        return []
+
     for i, row in df.iterrows():
-        # company_name or website required
-        if pd.isna(row.get("company_name")) and pd.isna(row.get("website")):
-            errors.append(f"Row {i+2}: company_name or website required")
-        
-        # If signal_type set, signal_source_url required
-        if pd.notna(row.get("signal_type")) and pd.isna(row.get("signal_source_url")):
-            errors.append(f"Row {i+2}: signal_type set but signal_source_url missing")
-        
-        # Check last_updated
+        # company_id required
+        if pd.isna(row.get("company_id")):
+            errors.append(f"Row {i+2}: company_id missing")
+
+        # name required
+        if pd.isna(row.get("name")) or not str(row.get("name")).strip():
+            errors.append(f"Row {i+2}: name missing")
+
+        # last_updated required
         if pd.isna(row.get("last_updated")):
             if fix:
                 df.at[i, "last_updated"] = today_iso()
             else:
                 errors.append(f"Row {i+2}: last_updated missing")
-    
-    if fix and errors:
+
+    # Unique company_id
+    if "company_id" in df.columns:
+        dupes = df[df["company_id"].duplicated(keep=False)]
+        if not dupes.empty:
+            for cid in dupes["company_id"].unique():
+                errors.append(f"Duplicate company_id: {cid}")
+
+    if fix:
         df.to_csv(path, index=False)
-        print(f"Fixed {len(errors)} issues in companies")
-    
+
     return errors
 
 
 def validate_people(fix: bool = False) -> list[str]:
-    """Validate crm_people_master.csv"""
+    """Validate contacts/people.csv"""
     errors = []
-    path = CRM_DIR / "crm_people_master.csv"
-    
+    path = CRM_DIR / "contacts" / "people.csv"
+
     if not path.exists():
-        return ["people file not found"]
-    
-    df = pd.read_csv(path)
-    
+        return ["contacts/people.csv not found"]
+
+    df = load_csv(path)
     if df.empty:
-        return []  # Empty is OK for starter
-    
+        return []
+
     for i, row in df.iterrows():
-        # linkedin_url required and must contain linkedin.com
-        url = str(row.get("linkedin_url") or "")
-        if not url or "linkedin.com" not in url.lower():
-            errors.append(f"Row {i+2}: linkedin_url missing or invalid")
-        
+        # person_id required
+        if pd.isna(row.get("person_id")):
+            errors.append(f"Row {i+2}: person_id missing")
+
         # first_name required
         if pd.isna(row.get("first_name")) or not str(row.get("first_name")).strip():
             errors.append(f"Row {i+2}: first_name missing")
-        
-        # last_name required
-        if pd.isna(row.get("last_name")) or not str(row.get("last_name")).strip():
-            errors.append(f"Row {i+2}: last_name missing")
-        
-        # Check last_updated
+
+        # Must have email OR phone OR telegram_username
+        has_email = pd.notna(row.get("email")) and str(row.get("email")).strip()
+        has_phone = pd.notna(row.get("phone")) and str(row.get("phone")).strip()
+        has_tg = pd.notna(row.get("telegram_username")) and str(row.get("telegram_username")).strip()
+        if not (has_email or has_phone or has_tg):
+            errors.append(f"Row {i+2}: must have email OR phone OR telegram_username")
+
+        # last_updated required
         if pd.isna(row.get("last_updated")):
             if fix:
                 df.at[i, "last_updated"] = today_iso()
             else:
                 errors.append(f"Row {i+2}: last_updated missing")
-    
-    # Check for duplicates
-    if "linkedin_url" in df.columns:
-        dupes = df[df["linkedin_url"].duplicated(keep=False)]
+
+    # Unique person_id
+    if "person_id" in df.columns:
+        dupes = df[df["person_id"].duplicated(keep=False)]
         if not dupes.empty:
-            dupe_urls = dupes["linkedin_url"].unique()
-            for url in dupe_urls:
-                errors.append(f"Duplicate linkedin_url: {url}")
-    
-    if fix and errors:
+            for pid in dupes["person_id"].unique():
+                errors.append(f"Duplicate person_id: {pid}")
+
+    if fix:
         df.to_csv(path, index=False)
-        print(f"Fixed some issues in people")
-    
+
     return errors
 
 
 def validate_activities() -> list[str]:
-    """Validate crm_outreach_activities.csv"""
+    """Validate activities.csv"""
     errors = []
-    path = CRM_DIR / "crm_outreach_activities.csv"
-    
+    path = CRM_DIR / "activities.csv"
+
     if not path.exists():
-        return ["activities file not found"]
-    
-    df = pd.read_csv(path)
-    
+        return ["activities.csv not found"]
+
+    df = load_csv(path)
     if df.empty:
         return []
-    
-    valid_channels = {"linkedin", "email", "twitter", "intro"}
-    valid_types = {"dm", "request_intro", "followup", "email_sent", "call", "research_done"}
-    
+
+    valid_types = {"call", "email", "meeting", "message", "note"}
+    valid_channels = {"email", "telegram", "whatsapp", "phone", "in_person", "linkedin"}
+
     for i, row in df.iterrows():
-        # linkedin_url required
-        if pd.isna(row.get("linkedin_url")):
-            errors.append(f"Row {i+2}: linkedin_url missing")
-        
-        # date required
-        if pd.isna(row.get("date")):
-            errors.append(f"Row {i+2}: date missing")
-        
-        # channel validation
+        # type required
+        atype = str(row.get("type") or "").lower()
+        if atype and atype not in valid_types:
+            errors.append(f"Row {i+2}: invalid type '{atype}'")
+
+        # channel required
         channel = str(row.get("channel") or "").lower()
         if channel and channel not in valid_channels:
             errors.append(f"Row {i+2}: invalid channel '{channel}'")
-        
-        # activity_type validation
-        atype = str(row.get("activity_type") or "").lower()
-        if atype and atype not in valid_types:
-            errors.append(f"Row {i+2}: invalid activity_type '{atype}'")
-    
+
+        # date required
+        if pd.isna(row.get("date")):
+            errors.append(f"Row {i+2}: date missing")
+
+    return errors
+
+
+def validate_leads(companies_df) -> list[str]:
+    """Validate relationships/leads.csv"""
+    errors = []
+    path = CRM_DIR / "relationships" / "leads.csv"
+
+    if not path.exists():
+        return ["relationships/leads.csv not found"]
+
+    df = load_csv(path)
+    if df.empty:
+        return []
+
+    valid_stages = {"new", "qualified", "proposal", "negotiation", "won", "lost"}
+
+    for i, row in df.iterrows():
+        # lead_id required
+        if pd.isna(row.get("lead_id")):
+            errors.append(f"Row {i+2}: lead_id missing")
+
+        # stage validation
+        stage = str(row.get("stage") or "").lower()
+        if stage and stage not in valid_stages:
+            errors.append(f"Row {i+2}: invalid stage '{stage}'")
+
+        # FK: company_id must exist
+        if not companies_df.empty and "company_id" in companies_df.columns:
+            cid = row.get("company_id")
+            if pd.notna(cid) and cid not in companies_df["company_id"].values:
+                errors.append(f"Row {i+2}: company_id '{cid}' not found")
+
     return errors
 
 
 def main():
     parser = argparse.ArgumentParser(description="Validate CRM CSV files")
-    parser.add_argument("--fix", action="store_true", help="Auto-fix what can be fixed")
+    parser.add_argument("--fix", action="store_true", help="Auto-fix missing last_updated")
     args = parser.parse_args()
-    
+
     print("=" * 50)
     print("CRM VALIDATION REPORT")
     print("=" * 50)
-    
+
     all_errors = []
-    
+
+    # Load companies for FK validation
+    companies_path = CRM_DIR / "contacts" / "companies.csv"
+    companies_df = load_csv(companies_path) if companies_path.exists() else pd.DataFrame()
+
     # Companies
-    print("\n📋 Validating companies...")
+    print("\nValidating companies...")
     errors = validate_companies(fix=args.fix)
     if errors:
-        print(f"  ❌ {len(errors)} issues:")
+        print(f"  {len(errors)} issues:")
         for e in errors[:5]:
             print(f"     - {e}")
         if len(errors) > 5:
             print(f"     ... and {len(errors) - 5} more")
     else:
-        print("  ✅ OK")
+        print("  OK")
     all_errors.extend(errors)
-    
+
     # People
-    print("\n👤 Validating people...")
+    print("\nValidating people...")
     errors = validate_people(fix=args.fix)
     if errors:
-        print(f"  ❌ {len(errors)} issues:")
+        print(f"  {len(errors)} issues:")
         for e in errors[:5]:
             print(f"     - {e}")
         if len(errors) > 5:
             print(f"     ... and {len(errors) - 5} more")
     else:
-        print("  ✅ OK")
+        print("  OK")
     all_errors.extend(errors)
-    
+
     # Activities
-    print("\n📝 Validating activities...")
+    print("\nValidating activities...")
     errors = validate_activities()
     if errors:
-        print(f"  ❌ {len(errors)} issues:")
+        print(f"  {len(errors)} issues:")
         for e in errors[:5]:
             print(f"     - {e}")
-        if len(errors) > 5:
-            print(f"     ... and {len(errors) - 5} more")
     else:
-        print("  ✅ OK")
+        print("  OK")
     all_errors.extend(errors)
-    
+
+    # Leads
+    print("\nValidating leads...")
+    errors = validate_leads(companies_df)
+    if errors:
+        print(f"  {len(errors)} issues:")
+        for e in errors[:5]:
+            print(f"     - {e}")
+    else:
+        print("  OK")
+    all_errors.extend(errors)
+
     # Summary
     print("\n" + "=" * 50)
     if all_errors:
-        print(f"❌ Total: {len(all_errors)} issues found")
+        print(f"Total: {len(all_errors)} issues found")
         if not args.fix:
             print("   Run with --fix to auto-fix what can be fixed")
     else:
-        print("✅ All validations passed!")
-    
+        print("All validations passed!")
+
     return len(all_errors)
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

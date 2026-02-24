@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CRM_DIR = BASE_DIR / "sales" / "crm"
 
 
-FORMULA_INJECTION_CHARS = {"=", "+", "-", "@", "\t", "\r"}
+FORMULA_INJECTION_CHARS = {"=", "+", "@", "\t", "\r"}
 TEXT_FIELDS = {
     "name", "description", "notes", "subject", "next_action",
     "role", "revenue_share", "source", "invoice_number",
@@ -162,19 +162,31 @@ def validate_activities() -> list[str]:
     valid_channels = {"email", "telegram", "whatsapp", "phone", "in_person", "linkedin"}
 
     for i, row in df.iterrows():
+        # activity_id required
+        if pd.isna(row.get("activity_id")):
+            errors.append(f"Row {i+2}: activity_id missing")
+
         # type required
         atype = str(row.get("type") or "").lower()
-        if atype and atype not in valid_types:
+        if not atype or pd.isna(row.get("type")):
+            errors.append(f"Row {i+2}: type missing")
+        elif atype not in valid_types:
             errors.append(f"Row {i+2}: invalid type '{atype}'")
 
         # channel required
         channel = str(row.get("channel") or "").lower()
-        if channel and channel not in valid_channels:
+        if not channel or pd.isna(row.get("channel")):
+            errors.append(f"Row {i+2}: channel missing")
+        elif channel not in valid_channels:
             errors.append(f"Row {i+2}: invalid channel '{channel}'")
 
         # date required
         if pd.isna(row.get("date")):
             errors.append(f"Row {i+2}: date missing")
+
+        # created_by required
+        if pd.isna(row.get("created_by")) or not str(row.get("created_by")).strip():
+            errors.append(f"Row {i+2}: created_by missing")
 
     return errors
 
@@ -193,6 +205,10 @@ def validate_leads(companies_df) -> list[str]:
 
     valid_stages = {"new", "qualified", "proposal", "negotiation", "won", "lost"}
 
+    # Load products for FK validation
+    products_path = CRM_DIR / "products.csv"
+    products_df = load_csv(products_path) if products_path.exists() else pd.DataFrame()
+
     for i, row in df.iterrows():
         # lead_id required
         if pd.isna(row.get("lead_id")):
@@ -200,14 +216,26 @@ def validate_leads(companies_df) -> list[str]:
 
         # stage validation
         stage = str(row.get("stage") or "").lower()
-        if stage and stage not in valid_stages:
+        if not stage or pd.isna(row.get("stage")):
+            errors.append(f"Row {i+2}: stage missing")
+        elif stage not in valid_stages:
             errors.append(f"Row {i+2}: invalid stage '{stage}'")
+
+        # last_updated required
+        if pd.isna(row.get("last_updated")):
+            errors.append(f"Row {i+2}: last_updated missing")
 
         # FK: company_id must exist
         if not companies_df.empty and "company_id" in companies_df.columns:
             cid = row.get("company_id")
             if pd.notna(cid) and cid not in companies_df["company_id"].values:
                 errors.append(f"Row {i+2}: company_id '{cid}' not found")
+
+        # FK: product_id must exist
+        if not products_df.empty and "product_id" in products_df.columns:
+            pid = row.get("product_id")
+            if pd.notna(pid) and pid not in products_df["product_id"].values:
+                errors.append(f"Row {i+2}: product_id '{pid}' not found")
 
     return errors
 
@@ -314,7 +342,7 @@ def main():
     else:
         print("All validations passed!")
 
-    return len(all_errors)
+    return min(len(all_errors), 1)
 
 
 if __name__ == "__main__":

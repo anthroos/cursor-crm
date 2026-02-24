@@ -75,6 +75,8 @@ tables:
       product_id: products.product_id
       primary_contact_id: people.person_id
     id_format: "^cli-[a-z0-9]+-\\d+$"
+    optional:
+      - last_contact_via_primary  # YYYY-MM-DD, last contact via primary contact
     enums:
       status: [active, paused, churned]
 
@@ -119,6 +121,8 @@ tables:
       product_id: products.product_id
       primary_contact_id: people.person_id
     id_format: "^lead-[a-z0-9]+-\\d+$"
+    optional:
+      - last_contact_via_primary  # YYYY-MM-DD, last contact via primary contact
     enums:
       stage: [new, qualified, proposal, negotiation, won, lost]
       priority: [low, medium, high, critical]

@@ -19,6 +19,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CRM_DIR = BASE_DIR / "sales" / "crm"
 
 
+FORMULA_INJECTION_CHARS = {"=", "+", "-", "@", "\t", "\r"}
+TEXT_FIELDS = {
+    "name", "description", "notes", "subject", "next_action",
+    "role", "revenue_share", "source", "invoice_number",
+}
+
+
 def today_iso() -> str:
     return datetime.now().strftime("%Y-%m-%d")
 
@@ -30,6 +37,24 @@ def load_csv(path):
         return df
     except pd.errors.EmptyDataError:
         return pd.DataFrame()
+
+
+def check_formula_injection(df, table_name: str) -> list[str]:
+    """Check text fields for CSV formula injection characters."""
+    errors = []
+    for col in df.columns:
+        if col not in TEXT_FIELDS:
+            continue
+        for i, val in df[col].items():
+            if pd.isna(val):
+                continue
+            s = str(val).strip()
+            if s and s[0] in FORMULA_INJECTION_CHARS:
+                errors.append(
+                    f"{table_name} row {i+2}: '{col}' starts with '{s[0]}' "
+                    f"(possible CSV formula injection)"
+                )
+    return errors
 
 
 def validate_companies(fix: bool = False) -> list[str]:
@@ -202,6 +227,18 @@ def main():
     companies_path = CRM_DIR / "contacts" / "companies.csv"
     companies_df = load_csv(companies_path) if companies_path.exists() else pd.DataFrame()
 
+    # Collect all DataFrames for formula injection check
+    csv_files = {
+        "companies": CRM_DIR / "contacts" / "companies.csv",
+        "people": CRM_DIR / "contacts" / "people.csv",
+        "products": CRM_DIR / "products.csv",
+        "leads": CRM_DIR / "relationships" / "leads.csv",
+        "clients": CRM_DIR / "relationships" / "clients.csv",
+        "partners": CRM_DIR / "relationships" / "partners.csv",
+        "deals": CRM_DIR / "relationships" / "deals.csv",
+        "activities": CRM_DIR / "activities.csv",
+    }
+
     # Companies
     print("\nValidating companies...")
     errors = validate_companies(fix=args.fix)
@@ -249,6 +286,24 @@ def main():
     else:
         print("  OK")
     all_errors.extend(errors)
+
+    # CSV formula injection check (all tables)
+    print("\nChecking for CSV formula injection...")
+    injection_errors = []
+    for table_name, path in csv_files.items():
+        if path.exists():
+            df = load_csv(path)
+            if not df.empty:
+                injection_errors.extend(check_formula_injection(df, table_name))
+    if injection_errors:
+        print(f"  {len(injection_errors)} issues:")
+        for e in injection_errors[:5]:
+            print(f"     - {e}")
+        if len(injection_errors) > 5:
+            print(f"     ... and {len(injection_errors) - 5} more")
+    else:
+        print("  OK")
+    all_errors.extend(injection_errors)
 
     # Summary
     print("\n" + "=" * 50)

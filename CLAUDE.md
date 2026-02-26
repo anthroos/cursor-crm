@@ -1,9 +1,15 @@
-# Cursor CRM Rules
+# Cursor CRM
 
-## Company Context
+You are an AI assistant integrated with a CSV-based CRM system. You help the user manage companies, contacts, leads, clients, partners, deals, and activities.
+
+## Context
+
 Company: [YOUR_COMPANY_NAME]
 Product: [YOUR_PRODUCT_DESCRIPTION]
 Target: [YOUR_ICP - e.g., "AI startups needing training data"]
+PM_INTEGRATION: false  # Set to true if using cursor-pm
+PM_PATH:               # Relative path to cursor-pm/pm if PM_INTEGRATION is true
+SKILLS_REPO:           # Path to claude-skills repo (optional, for advanced workflows)
 
 ---
 
@@ -14,30 +20,30 @@ Target: [YOUR_ICP - e.g., "AI startups needing training data"]
 ```
 sales/crm/
 ├── contacts/
-│   ├── companies.csv          ← All companies (PK: company_id)
-│   └── people.csv             ← All contacts (PK: person_id)
-├── products.csv               ← Your products/services
+│   ├── companies.csv          <- All companies (PK: company_id)
+│   └── people.csv             <- All contacts (PK: person_id)
+├── products.csv               <- Your products/services
 ├── relationships/
-│   ├── leads.csv              ← Sales pipeline
-│   ├── clients.csv            ← Active clients
-│   ├── partners.csv           ← Partner relationships
-│   └── deals.csv              ← Deal tracking & invoicing
-├── activities.csv             ← All communications
-└── schema.yaml                ← Machine-readable validation rules
+│   ├── leads.csv              <- Sales pipeline
+│   ├── clients.csv            <- Active clients
+│   ├── partners.csv           <- Partner relationships
+│   └── deals.csv              <- Deal tracking & invoicing
+├── activities.csv             <- All communications
+└── schema.yaml                <- Machine-readable validation rules
 ```
 
 ### Data Model
 
 ```
-Companies ←──── People
-    │               │
-    ├── Leads       │ (via primary_contact_id)
-    ├── Clients     │
-    ├── Partners    │
-    │       │
-    │    Deals
-    │
-    └── Activities ──── People
+Companies <---- People
+    |               |
+    +-- Leads       | (via primary_contact_id)
+    +-- Clients     |
+    +-- Partners    |
+    |       |
+    |    Deals
+    |
+    +-- Activities ---- People
 ```
 
 ---
@@ -50,7 +56,7 @@ See `docs/SCHEMA.md` for detailed field documentation.
 ### companies.csv
 ```
 company_id, name, website, linkedin_url, type, industry, geo, size,
-description, created_date, last_updated
+description, created_date, last_updated, mcp_url
 ```
 PK: company_id (format: comp-xxx)
 
@@ -58,7 +64,7 @@ PK: company_id (format: comp-xxx)
 ```
 person_id, first_name, last_name, email, phone, linkedin_url,
 company_id (FK), role, notes, created_date, last_updated,
-telegram_username, last_contact
+telegram_username, last_contact, mcp_url
 ```
 PK: person_id (format: p-xxx-N)
 Rule: Must have email OR phone OR telegram_username
@@ -196,6 +202,16 @@ When lead stage = "won":
 - "I'd love to..."
 - "Happy to chat"
 - "Congrats on funding!" (as opener)
+
+---
+
+## Skills Framework (optional)
+
+For advanced automation (multi-channel outreach, scheduled follow-ups, agent workflows), see [claude-skills](https://github.com/anthroos/claude-skills). Skills in that repo extend the inline skills above with:
+- Multi-channel sending (Telegram, Email, WhatsApp)
+- Automated lead enrichment and import pipelines
+- CRM data validation and staging workflows
+- Activity logging across all channels
 
 ---
 

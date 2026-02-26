@@ -1,1 +1,9 @@
 activity_id,person_id,company_id,product_id,type,channel,direction,subject,notes,date,created_by
+act-001,p-acme-2,comp-acme,prod-labeling,meeting,in_person,outbound,Discovery call with Sarah,Discussed annotation needs. 500k images/year. Sent capabilities deck.,2026-01-25,Owner
+act-002,p-acme-2,comp-acme,prod-labeling,email,email,outbound,Follow-up with pricing,Sent detailed pricing for 3 tiers. Sarah requested proposal by Feb 25.,2026-02-10,Owner
+act-003,p-beta-1,comp-betaworks,prod-labeling,call,phone,inbound,Mike called about batch 2,Happy with batch 1 quality. Wants to increase volume for batch 3.,2026-02-16,Owner
+act-004,p-delta-1,comp-delta,prod-consulting,email,email,outbound,Introduction via Gamma,Emma from Gamma introduced us. Sent company overview and case studies.,2026-02-12,Owner
+act-005,p-delta-1,comp-delta,prod-consulting,call,phone,outbound,Call with Hans,Discussed route optimization project. Interested in AI consulting. Demo scheduled for next week.,2026-02-20,Owner
+act-006,p-epsilon-1,comp-epsilon,prod-labeling,meeting,in_person,outbound,Contract negotiation,Reviewed contract terms. HIPAA compliance confirmed. Pricing agreed. Legal review pending.,2026-02-15,Owner
+act-007,p-gamma-1,comp-gamma,prod-training,email,email,inbound,Q1 cohort feedback,Positive feedback from first 2 weeks. 28/30 researchers active. Requesting advanced module.,2026-02-12,Owner
+act-008,p-zeta-1,comp-zeta,prod-labeling,message,linkedin,outbound,Cold outreach to Lisa,Sent connection request with note about NLP annotation services.,2026-02-17,Owner

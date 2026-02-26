@@ -1,47 +1,55 @@
-# Інтеграції для Cursor CRM
+# Integrations
 
-Підключи месенджери та пошту до Cursor — читай повідомлення, відправляй outreach, керуй CRM голосом з телефону.
+Connect messaging platforms and email to your CRM -- read messages, send outreach, manage contacts from your IDE.
 
-## Доступні інтеграції
+## Available Integrations
 
-| Інтеграція | Що дає | Складність |
-|------------|--------|------------|
-| [Telegram API](telegram_api.md) | Читати/писати повідомлення, керувати групами | ⭐⭐ Середня |
-| [Telegram Remote](telegram_remote.md) | Керувати Cursor з телефону | ⭐ Легка |
-| [Gmail](gmail.md) | Читати пошту, шукати листи | ⭐⭐ Середня |
-| [WhatsApp](whatsapp.md) | Читати чати та групи | ⭐⭐⭐ Складна |
+| Integration | What it does | Difficulty |
+|-------------|-------------|------------|
+| [Telegram API](telegram_api.md) | Read/send messages, manage groups | Medium |
+| [Telegram Remote](telegram_remote.md) | Control your IDE from your phone | Easy |
+| [Gmail](gmail.md) | Read emails, search messages | Medium |
+| [WhatsApp](whatsapp.md) | Read chats and groups | Hard |
+| [LinkedIn](linkedin.md) | Connection management, messaging | Manual |
+| [cursor-pm](cursor-pm.md) | Project management integration | Easy |
 
 ---
 
-## Що потрібно для всіх інтеграцій
+## Prerequisites
 
 1. **Python 3.10+**
-2. **Cursor IDE** з налаштованим CRM
-3. **API ключі** (створюєш сам, інструкції в кожному файлі)
+2. **Claude Code** or **Cursor IDE** with CRM configured
+3. **API keys** (you create them yourself -- instructions in each guide)
 
 ---
 
-## Швидкий старт
+## Quick Start
 
-### Хочу читати Telegram
-→ [telegram_api.md](telegram_api.md)
+### I want to read Telegram
+-> [telegram_api.md](telegram_api.md)
 
-### Хочу керувати Cursor з телефону
-→ [telegram_remote.md](telegram_remote.md)
+### I want to control my IDE from my phone
+-> [telegram_remote.md](telegram_remote.md)
 
-### Хочу бачити пошту в CRM
-→ [gmail.md](gmail.md)
+### I want to see emails in CRM
+-> [gmail.md](gmail.md)
 
-### Хочу читати WhatsApp
-→ [whatsapp.md](whatsapp.md)
+### I want to read WhatsApp
+-> [whatsapp.md](whatsapp.md)
+
+### I want to track LinkedIn connections
+-> [linkedin.md](linkedin.md)
+
+### I want project management
+-> [cursor-pm.md](cursor-pm.md)
 
 ---
 
-## Безпека
+## Security
 
-⚠️ **Ніколи не комітьте API ключі в git!**
+**Never commit API keys to git!**
 
-Всі ключі зберігай в `.env` файлах. Додай в `.gitignore`:
+Store all keys in `.env` files. Add to `.gitignore`:
 
 ```
 .env
@@ -52,12 +60,12 @@ credentials.json
 
 ---
 
-## Структура файлів після налаштування
+## File Structure After Setup
 
 ```
 your-project/
-├── .env                    ← API ключі (НЕ комітити!)
-├── telegram_session.session ← Telegram сесія
-├── token.json              ← Gmail токен
-└── credentials.json        ← Gmail OAuth credentials
+├── .env                     <- API keys (DO NOT commit!)
+├── telegram_session.session  <- Telegram session
+├── token.json                <- Gmail token
+└── credentials.json          <- Gmail OAuth credentials
 ```

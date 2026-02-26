@@ -242,5 +242,5 @@ clients.csv
 | **Telegram** | Telethon API | [Setup](../integrations/telegram_api.md) |
 | **Gmail** | Gmail API | [Setup](../integrations/gmail.md) |
 | **WhatsApp** | Baileys | [Setup](../integrations/whatsapp.md) |
-| **LinkedIn** | Manual / CDP | -- |
+| **LinkedIn** | Manual / CDP | [Setup](../integrations/linkedin.md) |
 | **cursor-pm** | CSV cross-reference | [Setup](../integrations/cursor-pm.md) |

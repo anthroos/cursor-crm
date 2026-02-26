@@ -16,6 +16,8 @@ tables:
       - company_id
       - website  # if not null
     id_format: "^comp-[a-z0-9-]+$"
+    optional:
+      - mcp_url  # MCP endpoint URL for agent-to-agent communication
     enums:
       type: [company, enterprise, ngo, individual]
       size: [small, medium, enterprise, individual]
@@ -34,6 +36,8 @@ tables:
     foreign_keys:
       company_id: companies.company_id
     id_format: "^p-[a-z0-9]+-\\d+$"
+    optional:
+      - mcp_url  # MCP endpoint URL for agent-to-agent communication
     rules:
       - name: contact_info_required
         description: "Must have email OR phone OR telegram_username"
@@ -167,7 +171,7 @@ tables:
     id_format: "^deal-[a-z0-9]+-\\d+$"
     enums:
       stage: [proposal, negotiation, won, in_progress, delivered, invoiced, paid, lost]
-      currency: [USD, EUR, UAH, PLN, SEK, JPY]
+      currency: [USD, EUR, GBP, CAD, AUD, CHF, JPY, SGD, PLN, UAH, SEK, INR, BRL]
     rules:
       - name: paid_requires_invoice
         description: "Paid deal must have invoice_date"

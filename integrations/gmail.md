@@ -1,51 +1,51 @@
 # Gmail API
 
-Cursor читає пошту через Gmail API — шукай листи, дивись переписки з клієнтами.
+Read emails and calendar events through the Gmail API.
 
-## Що це дає
+## What You Get
 
-- ✅ Шукати листи (by sender, subject, date)
-- ✅ Читати вміст листів
-- ✅ Дивитись календар
-- ❌ Відправляти листи (read-only для безпеки)
-
----
-
-## Крок 1: Створити Google Cloud Project
-
-1. Відкрий https://console.cloud.google.com
-2. Створи новий проект (або вибери існуючий)
-3. Назви його `CRM Integration` (або як хочеш)
+- Search emails (by sender, subject, date)
+- Read email contents
+- View calendar events
+- Read-only access (no sending, for safety)
 
 ---
 
-## Крок 2: Увімкнути Gmail API
+## Step 1: Create Google Cloud Project
 
-1. В Google Cloud Console → **APIs & Services** → **Library**
-2. Знайди **Gmail API** → натисни **Enable**
-3. Знайди **Google Calendar API** → натисни **Enable** (опціонально)
+1. Go to https://console.cloud.google.com
+2. Create a new project (or select an existing one)
+3. Name it `CRM Integration` (or anything you like)
 
 ---
 
-## Крок 3: Створити OAuth credentials
+## Step 2: Enable APIs
 
-1. **APIs & Services** → **Credentials**
-2. **Create Credentials** → **OAuth client ID**
-3. Якщо просить — налаштуй **OAuth consent screen**:
+1. In Google Cloud Console: **APIs & Services** > **Library**
+2. Find **Gmail API** > click **Enable**
+3. Find **Google Calendar API** > click **Enable** (optional)
+
+---
+
+## Step 3: Create OAuth Credentials
+
+1. **APIs & Services** > **Credentials**
+2. **Create Credentials** > **OAuth client ID**
+3. If prompted, configure **OAuth consent screen**:
    - User Type: **External**
    - App name: `CRM Integration`
-   - User support email: твій email
-   - Developer contact: твій email
-   - Scopes: додай `gmail.readonly`, `calendar.readonly`
-   - Test users: додай свій email
-4. Повернись до **Credentials** → **Create Credentials** → **OAuth client ID**
+   - User support email: your email
+   - Developer contact: your email
+   - Scopes: add `gmail.readonly`, `calendar.readonly`
+   - Test users: add your email
+4. Go back to **Credentials** > **Create Credentials** > **OAuth client ID**
 5. Application type: **Desktop app**
-6. Назва: `CRM Desktop`
-7. **Download JSON** → збережи як `credentials.json`
+6. Name: `CRM Desktop`
+7. **Download JSON** > save as `credentials.json`
 
 ---
 
-## Крок 4: Встановити залежності
+## Step 4: Install Dependencies
 
 ```bash
 pip3 install google-auth google-auth-oauthlib google-api-python-client
@@ -53,9 +53,9 @@ pip3 install google-auth google-auth-oauthlib google-api-python-client
 
 ---
 
-## Крок 5: Авторизація
+## Step 5: Authorization
 
-Створи файл `gmail_auth.py`:
+Create `gmail_auth.py`:
 
 ```python
 import os
@@ -70,10 +70,10 @@ SCOPES = [
 
 def authenticate():
     creds = None
-    
+
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    
+
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -82,67 +82,67 @@ def authenticate():
                 'credentials.json', SCOPES
             )
             creds = flow.run_local_server(port=0)
-        
+
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
-    
-    print("✅ Авторизація успішна!")
+
+    print("Authorization successful!")
     return creds
 
 if __name__ == '__main__':
     authenticate()
 ```
 
-Запусти:
+Run:
 ```bash
 python3 gmail_auth.py
 ```
 
-Відкриється браузер — залогінься і дай дозволи. Токен збережеться в `token.json`.
+A browser window will open -- log in and grant permissions. Token is saved to `token.json`.
 
 ---
 
-## Крок 6: Додати в .gitignore
+## Step 6: Add to .gitignore
 
 ```
 credentials.json
 token.json
 ```
 
-⚠️ Ніколи не комітьте ці файли!
+Never commit these files!
 
 ---
 
-## Використання в Cursor
+## Usage
 
-Після авторизації можеш просити Cursor:
+After authorization, ask your AI assistant:
 
-> "Покажи листи від john@company.com за останній тиждень"
+> "Show emails from john@company.com this week"
 
-> "Знайди всі листи з темою 'invoice'"
+> "Find all emails with subject 'invoice'"
 
-> "Яка остання переписка з клієнтом Blinkfire?"
+> "What's the latest thread with Acme Corp?"
 
 ---
 
-## Приклади коду
+## Code Examples
 
-### Пошук листів
+### Search Emails
 
 ```python
 from googleapiclient.discovery import build
 
 def search_emails(creds, query, max_results=10):
     service = build('gmail', 'v1', credentials=creds)
-    
+
     results = service.users().messages().list(
         userId='me',
         q=query,
         maxResults=max_results
     ).execute()
-    
+
     messages = results.get('messages', [])
-    
+
     for msg in messages:
         msg_data = service.users().messages().get(
             userId='me',
@@ -150,19 +150,19 @@ def search_emails(creds, query, max_results=10):
             format='metadata',
             metadataHeaders=['From', 'Subject', 'Date']
         ).execute()
-        
+
         headers = {h['name']: h['value'] for h in msg_data['payload']['headers']}
         print(f"From: {headers.get('From')}")
         print(f"Subject: {headers.get('Subject')}")
         print(f"Date: {headers.get('Date')}")
         print("---")
 
-# Використання
+# Usage
 creds = authenticate()
 search_emails(creds, "from:client@example.com")
 ```
 
-### Отримати події календаря
+### Get Calendar Events
 
 ```python
 from googleapiclient.discovery import build
@@ -170,10 +170,10 @@ from datetime import datetime, timedelta
 
 def get_calendar_events(creds, days=7):
     service = build('calendar', 'v3', credentials=creds)
-    
+
     now = datetime.utcnow().isoformat() + 'Z'
     end = (datetime.utcnow() + timedelta(days=days)).isoformat() + 'Z'
-    
+
     events = service.events().list(
         calendarId='primary',
         timeMin=now,
@@ -181,7 +181,7 @@ def get_calendar_events(creds, days=7):
         singleEvents=True,
         orderBy='startTime'
     ).execute()
-    
+
     for event in events.get('items', []):
         start = event['start'].get('dateTime', event['start'].get('date'))
         print(f"{start}: {event['summary']}")
@@ -192,13 +192,13 @@ def get_calendar_events(creds, days=7):
 ## Troubleshooting
 
 ### "Access blocked: This app's request is invalid"
-- Переконайся що додав свій email в Test users
-- OAuth consent screen має бути налаштований
+- Make sure you added your email to Test users
+- OAuth consent screen must be configured
 
 ### Token expired
-- Видали `token.json`
-- Запусти `gmail_auth.py` знову
+- Delete `token.json`
+- Run `gmail_auth.py` again
 
 ### "Insufficient Permission"
-- Перевір що додав правильні scopes
-- Видали `token.json` і авторизуйся знову
+- Check that you added the correct scopes
+- Delete `token.json` and re-authorize

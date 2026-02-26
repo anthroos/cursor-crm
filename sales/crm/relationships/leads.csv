@@ -1,1 +1,5 @@
 lead_id,company_id,product_id,stage,source,priority,primary_contact_id,estimated_value,currency,next_action,next_action_date,notes,created_date,last_updated,last_contact_via_primary
+lead-acme-1,comp-acme,prod-labeling,proposal,linkedin,high,p-acme-2,15000,USD,Send proposal with pricing,2026-02-25,Interested in image annotation for e-commerce product photos. 500k images/year.,2026-01-20,2026-02-20,2026-02-18
+lead-delta-1,comp-delta,prod-consulting,qualified,referral,medium,p-delta-1,8000,EUR,Schedule demo call with CTO,2026-02-28,Route optimization AI project. Referred by Gamma Research.,2026-02-10,2026-02-22,2026-02-20
+lead-epsilon-1,comp-epsilon,prod-labeling,negotiation,website,critical,p-epsilon-1,25000,USD,Review contract terms,2026-02-24,Medical imaging annotation. HIPAA compliance required. Large ongoing contract potential.,2026-02-10,2026-02-20,2026-02-15
+lead-zeta-1,comp-zeta,prod-labeling,new,cold-outreach,low,p-zeta-1,5000,USD,Initial call to discuss needs,2026-03-01,NLP annotation for financial news. Small team but growing fast.,2026-02-15,2026-02-19,2026-02-17

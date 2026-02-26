@@ -1,1 +1,4 @@
 deal_id,client_id,name,value,currency,stage,created_date,delivered_date,invoice_date,invoice_number,paid_date,paid_amount,notes
+deal-betaworks-1,cli-betaworks-1,UI Annotation Batch 1,4000,USD,paid,2025-11-15,2025-12-10,2025-12-15,INV-2025-001,2026-01-05,4000,First batch of 10k UI screenshots annotated.
+deal-betaworks-2,cli-betaworks-1,UI Annotation Batch 2,4500,USD,invoiced,2026-01-10,2026-02-05,2026-02-10,INV-2026-001,,,Second batch. 12k screenshots. Awaiting payment.
+deal-gamma-1,cli-gamma-1,AI Training Q1,1500,USD,in_progress,2026-01-15,,,,,,Q1 training cohort. 30 researchers enrolled.

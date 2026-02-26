@@ -56,7 +56,7 @@ See `docs/SCHEMA.md` for detailed field documentation.
 ### companies.csv
 ```
 company_id, name, website, linkedin_url, type, industry, geo, size,
-description, created_date, last_updated
+description, created_date, last_updated, mcp_url
 ```
 PK: company_id (format: comp-xxx)
 
@@ -64,7 +64,7 @@ PK: company_id (format: comp-xxx)
 ```
 person_id, first_name, last_name, email, phone, linkedin_url,
 company_id (FK), role, notes, created_date, last_updated,
-telegram_username, last_contact
+telegram_username, last_contact, mcp_url
 ```
 PK: person_id (format: p-xxx-N)
 Rule: Must have email OR phone OR telegram_username

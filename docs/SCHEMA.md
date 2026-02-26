@@ -34,6 +34,7 @@ Full machine-readable schema: `sales/crm/schema.yaml`
 | `description` | string | No | Free-form description |
 | `created_date` | YYYY-MM-DD | Yes | When record was created |
 | `last_updated` | YYYY-MM-DD | Yes | When record was last modified |
+| `mcp_url` | string | No | MCP endpoint URL for agent-to-agent communication |
 
 ### people.csv
 
@@ -52,6 +53,7 @@ Full machine-readable schema: `sales/crm/schema.yaml`
 | `last_updated` | YYYY-MM-DD | Yes | When record was last modified |
 | `telegram_username` | string | No | Telegram handle |
 | `last_contact` | YYYY-MM-DD | No | Last contact date |
+| `mcp_url` | string | No | MCP endpoint URL for agent-to-agent communication |
 
 **Rule:** Must have at least one of: email, phone, or telegram_username.
 

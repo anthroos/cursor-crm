@@ -150,7 +150,7 @@ tables:
       product_id: products.product_id
     enums:
       type: [call, email, meeting, message, note]
-      channel: [email, telegram, whatsapp, phone, in_person, linkedin]
+      channel: [email, telegram, whatsapp, phone, in_person, linkedin, mcp]
       direction: [inbound, outbound]
 
   deals:

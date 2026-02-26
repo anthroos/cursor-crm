@@ -165,7 +165,7 @@ Full machine-readable schema: `sales/crm/schema.yaml`
 | `company_id` | string | No | FK to companies |
 | `product_id` | string | No | FK to products |
 | `type` | enum | Yes | call / email / meeting / message / note |
-| `channel` | enum | Yes | email / telegram / whatsapp / phone / in_person / linkedin |
+| `channel` | enum | Yes | email / telegram / whatsapp / phone / in_person / linkedin / mcp |
 | `direction` | enum | No | inbound / outbound |
 | `subject` | string | No | Short description |
 | `notes` | string | No | Detailed notes |

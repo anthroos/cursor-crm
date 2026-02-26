@@ -11,6 +11,7 @@ Connect messaging platforms and email to your CRM -- read messages, send outreac
 | [Gmail](gmail.md) | Read emails, search messages | Medium |
 | [WhatsApp](whatsapp.md) | Read chats and groups | Hard |
 | [LinkedIn](linkedin.md) | Connection management, messaging | Manual |
+| [MCP Agents](mcp-agents.md) | Agent-to-agent communication via MCP | Medium |
 | [cursor-pm](cursor-pm.md) | Project management integration | Easy |
 
 ---
@@ -39,6 +40,9 @@ Connect messaging platforms and email to your CRM -- read messages, send outreac
 
 ### I want to track LinkedIn connections
 -> [linkedin.md](linkedin.md)
+
+### I want to connect with AI agents
+-> [mcp-agents.md](mcp-agents.md)
 
 ### I want project management
 -> [cursor-pm.md](cursor-pm.md)

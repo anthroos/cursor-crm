@@ -31,6 +31,7 @@ flowchart LR
         CH4[Phone]
         CH5[LinkedIn]
         CH6[In Person]
+        CH7[MCP Agent]
     end
 
     %% Relationships
@@ -243,4 +244,5 @@ clients.csv
 | **Gmail** | Gmail API | [Setup](../integrations/gmail.md) |
 | **WhatsApp** | Baileys | [Setup](../integrations/whatsapp.md) |
 | **LinkedIn** | Manual / CDP | [Setup](../integrations/linkedin.md) |
+| **MCP Agents** | Model Context Protocol | [Setup](../integrations/mcp-agents.md) |
 | **cursor-pm** | CSV cross-reference | [Setup](../integrations/cursor-pm.md) |

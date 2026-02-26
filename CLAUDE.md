@@ -112,7 +112,7 @@ activity_id, person_id (FK), company_id (FK), product_id (FK),
 type, channel, direction, subject, notes, date, created_by
 ```
 Types: call / email / meeting / message / note
-Channels: email / telegram / whatsapp / phone / in_person / linkedin
+Channels: email / telegram / whatsapp / phone / in_person / linkedin / mcp
 
 ---
 
@@ -184,6 +184,34 @@ When lead stage = "won":
 2. Create deal record in deals.csv
 3. Link primary_contact_id
 4. Update lead stage to "won"
+
+### SKILL: Connect via Agent MCP
+When a contact has `mcp_url` set and user wants to interact with their agent:
+1. Read `mcp_url` from the contact's company or person record
+2. Check if already registered: look in `.claude/settings.json` mcpServers
+3. If not registered:
+   a. Fetch `{base_url}/.well-known/agent.json` to discover capabilities
+   b. Extract: name, description, MCP endpoint URL, available tools
+   c. Generate slug from name (lowercase, hyphens, no special chars)
+   d. Register: `claude mcp add {slug} --transport http {mcp_url}`
+   e. Inform user: "Restart session to use {name}'s tools"
+4. If already registered: use tools directly
+5. After any MCP interaction, log activity with channel: `mcp`
+6. Update person/company `last_contact` and `last_updated`
+
+See [MCP Agent Integration](integrations/mcp-agents.md) for full details.
+
+### SKILL: Find Agent Contacts
+Query CRM for contacts with MCP endpoints:
+```python
+import pandas as pd
+people = pd.read_csv('sales/crm/contacts/people.csv')
+companies = pd.read_csv('sales/crm/contacts/companies.csv')
+agent_people = people[people['mcp_url'].notna() & (people['mcp_url'] != '')]
+agent_companies = companies[companies['mcp_url'].notna() & (companies['mcp_url'] != '')]
+print(f"People with agents: {len(agent_people)}")
+print(f"Companies with agents: {len(agent_companies)}")
+```
 
 ---
 

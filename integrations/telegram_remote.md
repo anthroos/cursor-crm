@@ -1,35 +1,35 @@
 # Telegram Remote Control
 
-Керуй Cursor IDE з телефону через Telegram бота.
+Control your IDE from your phone via a Telegram bot.
 
-## Що це дає
+## What You Get
 
-- 📱 Відправляти промпти в Cursor з телефону
-- 📸 Отримувати скріншоти
-- ✅ Приймати/відхиляти зміни
-- 🔄 Скролити вгору/вниз
-
----
-
-## Крок 1: Створити Telegram бота
-
-1. Відкрий Telegram → знайди **@BotFather**
-2. Напиши `/newbot`
-3. Введи назву: `Cursor Remote` (або свою)
-4. Введи username: `cursor_remote_yourname_bot`
-5. Скопіюй **токен** (виглядає як `8056197506:AAHz...`)
+- Send prompts to your IDE from your phone
+- Take screenshots of IDE state
+- Accept/reject changes
+- Scroll up/down
 
 ---
 
-## Крок 2: Дізнатись свій Telegram ID
+## Step 1: Create a Telegram Bot
 
-1. Відкрий Telegram → знайди **@userinfobot**
-2. Натисни Start
-3. Скопіюй свій **Id** (число типу `394755411`)
+1. Open Telegram and find **@BotFather**
+2. Send `/newbot`
+3. Enter a name: `Cursor Remote` (or your own)
+4. Enter a username: `cursor_remote_yourname_bot`
+5. Copy the **token** (looks like `8056197506:AAHz...`)
 
 ---
 
-## Крок 3: Встановити cursor-remote
+## Step 2: Find Your Telegram ID
+
+1. Open Telegram and find **@userinfobot**
+2. Press Start
+3. Copy your **Id** (a number like `394755411`)
+
+---
+
+## Step 3: Install cursor-remote
 
 ```bash
 git clone https://github.com/anthroos/cursor-remote.git
@@ -39,7 +39,7 @@ pip3 install -r requirements.txt
 
 ---
 
-## Крок 4: Створити .env файл
+## Step 4: Create .env File
 
 ```bash
 # .env
@@ -47,28 +47,28 @@ TELEGRAM_BOT_TOKEN=8056197506:AAHz...your_token...
 ALLOWED_USER_ID=394755411
 ```
 
-⚠️ `ALLOWED_USER_ID` — тільки ти зможеш керувати ботом!
+`ALLOWED_USER_ID` ensures only you can control the bot!
 
 ---
 
-## Крок 5: Дати дозволи macOS
+## Step 5: Grant macOS Permissions
 
-**Обов'язково!** Без цього бот не зможе керувати Cursor.
+**Required!** Without this, the bot cannot control your IDE.
 
-1. **System Settings** → **Privacy & Security** → **Accessibility**
-2. Натисни **+**
-3. Додай **Terminal** (або iTerm)
-4. Переконайся що галочка стоїть ✅
+1. **System Settings** > **Privacy & Security** > **Accessibility**
+2. Click **+**
+3. Add **Terminal** (or iTerm)
+4. Make sure the checkbox is enabled
 
 ---
 
-## Крок 6: Запустити
+## Step 6: Start
 
 ```bash
 python3 examples/run_telegram.py
 ```
 
-Має показати:
+Should show:
 ```
 [INFO] Starting Cursor Remote Bot (Telegram)...
 [INFO] Bot is running!
@@ -76,41 +76,41 @@ python3 examples/run_telegram.py
 
 ---
 
-## Команди бота
+## Bot Commands
 
-| Команда | Що робить |
-|---------|-----------|
-| `/screen` | Скріншот Cursor |
-| `/up` | Скрол вгору + скріншот |
-| `/down` | Скрол вниз + скріншот |
-| `/accept` | Прийняти зміни (Cmd+Enter) |
-| `/reject` | Відхилити (Cmd+Backspace) |
-| `/stop` | Стоп (Escape) |
-| `/mode` | Перемкнути Agent/Ask |
-| `будь-який текст` | Відправити як промпт |
-
----
-
-## Приклад використання
-
-1. Відкрий Cursor на комп'ютері
-2. Відкрий бота в Telegram на телефоні
-3. Напиши: `Створи функцію hello world`
-4. Cursor почне генерувати код
-5. Напиши `/screen` щоб побачити результат
-6. Напиши `/accept` щоб прийняти
+| Command | What it does |
+|---------|-------------|
+| `/screen` | Screenshot of IDE |
+| `/up` | Scroll up + screenshot |
+| `/down` | Scroll down + screenshot |
+| `/accept` | Accept changes (Cmd+Enter) |
+| `/reject` | Reject changes (Cmd+Backspace) |
+| `/stop` | Stop (Escape) |
+| `/mode` | Switch Agent/Ask mode |
+| `any text` | Send as prompt |
 
 ---
 
-## Швидкий запуск (alias)
+## Example Workflow
 
-Додай в `~/.zshrc`:
+1. Open your IDE on your computer
+2. Open the bot in Telegram on your phone
+3. Type: `Create a hello world function`
+4. IDE starts generating code
+5. Send `/screen` to see the result
+6. Send `/accept` to accept
+
+---
+
+## Quick Start (alias)
+
+Add to `~/.zshrc`:
 
 ```bash
 alias cursor-bot="cd ~/cursor-remote && python3 examples/run_telegram.py"
 ```
 
-Тепер просто:
+Then just:
 ```bash
 cursor-bot
 ```
@@ -119,14 +119,14 @@ cursor-bot
 
 ## Troubleshooting
 
-### Бот не відповідає
-- Перевір чи Cursor IDE запущений
-- Перевір чи є дозвіл Accessibility для Terminal
+### Bot doesn't respond
+- Check that your IDE is running
+- Check that Terminal has Accessibility permission
 
 ### "Conflict: terminated by other getUpdates"
-- Вже запущена інша копія бота
-- Закрий: `pkill -f run_telegram.py`
+- Another instance of the bot is already running
+- Stop it: `pkill -f run_telegram.py`
 
-### Скріншот не приходить
-- Перевір Accessibility дозвіл
-- Перезапусти Terminal
+### Screenshot doesn't arrive
+- Check Accessibility permission
+- Restart Terminal

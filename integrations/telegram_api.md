@@ -1,30 +1,30 @@
 # Telegram API (Telethon)
 
-Cursor читає та пише повідомлення в Telegram через офіційний API.
+Read and send Telegram messages through the official API.
 
-## Що це дає
+## What You Get
 
-- ✅ Читати повідомлення з чатів/груп
-- ✅ Відправляти повідомлення
-- ✅ Керувати групами (створювати, перейменовувати)
-- ✅ Шукати контакти
+- Read messages from chats/groups
+- Send messages
+- Manage groups (create, rename)
+- Search contacts
 
 ---
 
-## Крок 1: Отримати API credentials
+## Step 1: Get API Credentials
 
-1. Відкрий https://my.telegram.org
-2. Залогінься через номер телефону
-3. Перейди в **API development tools**
-4. Створи новий додаток:
-   - App title: `MyCRM` (будь-яка назва)
+1. Go to https://my.telegram.org
+2. Log in with your phone number
+3. Go to **API development tools**
+4. Create a new app:
+   - App title: `MyCRM` (any name)
    - Short name: `mycrm`
    - Platform: `Desktop`
-5. Скопіюй **App api_id** і **App api_hash**
+5. Copy **App api_id** and **App api_hash**
 
 ---
 
-## Крок 2: Встановити залежності
+## Step 2: Install Dependencies
 
 ```bash
 pip3 install telethon python-dotenv qrcode
@@ -32,7 +32,7 @@ pip3 install telethon python-dotenv qrcode
 
 ---
 
-## Крок 3: Створити .env файл
+## Step 3: Create .env File
 
 ```bash
 # .env
@@ -40,13 +40,13 @@ TELEGRAM_API_ID=12345678
 TELEGRAM_API_HASH=abcdef1234567890abcdef1234567890
 ```
 
-⚠️ Додай `.env` в `.gitignore`!
+Add `.env` to `.gitignore`!
 
 ---
 
-## Крок 4: Авторизація через QR
+## Step 4: QR Authorization
 
-Створи файл `telegram_login.py`:
+Create `telegram_login.py`:
 
 ```python
 from telethon import TelegramClient
@@ -64,52 +64,51 @@ client = TelegramClient(
 
 async def main():
     await client.connect()
-    
+
     if not await client.is_user_authorized():
         qr_login = await client.qr_login()
-        
-        # Показати QR код в терміналі
+
         import qrcode
         qr = qrcode.QRCode(border=1)
         qr.add_data(qr_login.url)
         qr.print_ascii(invert=True)
-        
-        print("\n📱 Скануй QR в Telegram:")
-        print("   Settings → Devices → Link Desktop Device")
-        
+
+        print("\nScan QR in Telegram:")
+        print("   Settings > Devices > Link Desktop Device")
+
         await qr_login.wait(timeout=120)
-    
+
     me = await client.get_me()
-    print(f"\n✅ Залогінено як: {me.first_name} (@{me.username})")
+    print(f"\nLogged in as: {me.first_name} (@{me.username})")
     await client.disconnect()
 
 asyncio.run(main())
 ```
 
-Запусти:
+Run:
 ```bash
 python3 telegram_login.py
 ```
 
-Скануй QR код в Telegram на телефоні. Сесія збережеться в `telegram_session.session`.
+Scan the QR code in Telegram on your phone. The session is saved to `telegram_session.session`.
 
 ---
 
-## Використання в Cursor
+## Usage
 
-Після авторизації можеш просити Cursor:
+After authorization, ask your AI assistant:
 
-> "Покажи останні 10 повідомлень з групи [назва]"
+> "Show last 10 messages from group [name]"
 
-> "Відправ повідомлення @username: Привіт!"
+> "Send message to @username: Hello!"
 
-> "Знайди всі чати де є слово 'проект'"
+> "Find all chats mentioning 'project'"
 
 ---
 
-## Приклади коду
+## Code Examples
 
-### Прочитати повідомлення
+### Read Messages
 
 ```python
 async with client:
@@ -117,14 +116,14 @@ async with client:
         print(f"{message.sender.first_name}: {message.text}")
 ```
 
-### Відправити повідомлення
+### Send Message
 
 ```python
 async with client:
-    await client.send_message('username', 'Привіт!')
+    await client.send_message('username', 'Hello!')
 ```
 
-### Отримати список чатів
+### List Chats
 
 ```python
 async with client:
@@ -134,13 +133,13 @@ async with client:
 
 ---
 
-## Rate Limits (важливо!)
+## Rate Limits
 
-| Параметр | Значення |
-|----------|----------|
-| Повідомлень підряд новим контактам | 10-15 max |
-| Затримка між повідомленнями | 5 секунд мінімум |
-| Пауза після ліміту | 5-30 хвилин |
+| Parameter | Value |
+|-----------|-------|
+| Messages to new contacts in a row | 10-15 max |
+| Delay between messages | 5 seconds minimum |
+| Pause after hitting limit | 5-30 minutes |
 
 ```python
 import asyncio
@@ -149,7 +148,7 @@ from telethon.errors import FloodWaitError
 try:
     await client.send_message(user, text)
 except FloodWaitError as e:
-    print(f"Чекаємо {e.seconds} секунд...")
+    print(f"Waiting {e.seconds} seconds...")
     await asyncio.sleep(e.seconds)
 ```
 
@@ -157,14 +156,14 @@ except FloodWaitError as e:
 
 ## Troubleshooting
 
-### QR код не сканується
-- Переконайся що Telegram на телефоні оновлений
-- Спробуй збільшити яскравість екрану
+### QR code doesn't scan
+- Make sure Telegram on your phone is up to date
+- Try increasing screen brightness
 
 ### Session expired
-- Видали `telegram_session.session`
-- Запусти `telegram_login.py` знову
+- Delete `telegram_session.session`
+- Run `telegram_login.py` again
 
 ### FloodWaitError
-- Зачекай вказану кількість секунд
-- Зменш частоту повідомлень
+- Wait the specified number of seconds
+- Reduce message frequency

@@ -1,1 +1,4 @@
 product_id,business_line,name,type,description,owner,status,created_date
+prod-labeling,data-services,Data Labeling,service,Image/video/text annotation for ML training,Alex,active,2025-06-01
+prod-consulting,ai-services,AI Consulting,service,AI strategy and implementation consulting,Sarah,active,2025-09-01
+prod-training,education,AI Training Course,community,Online course on AI fundamentals and data annotation,Mike,active,2026-01-01

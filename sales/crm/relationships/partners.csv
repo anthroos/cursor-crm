@@ -1,1 +1,2 @@
 partner_id,company_id,product_id,partnership_type,status,since,primary_contact_id,revenue_share,notes,created_date,last_updated
+ptnr-gamma-1,comp-gamma,prod-labeling,referral_partner,active,2026-01-01,p-gamma-1,10% referral fee,Gamma refers AI companies needing annotation. We provide training to their researchers.,2026-01-01,2026-02-15

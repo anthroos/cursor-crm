@@ -1,1 +1,9 @@
 person_id,first_name,last_name,email,phone,linkedin_url,company_id,role,notes,created_date,last_updated,telegram_username,last_contact
+p-acme-1,John,Smith,john@acme.com,,https://linkedin.com/in/john-smith-acme,comp-acme,CEO,Technical founder. Previously at Google Brain.,2026-01-15,2026-02-20,,2026-02-18
+p-acme-2,Sarah,Chen,sarah@acme.com,,https://linkedin.com/in/sarah-chen,comp-acme,VP Engineering,Leads ML team. Decision maker for data services.,2026-01-20,2026-02-15,,2026-02-10
+p-beta-1,Mike,Johnson,mike@betaworks.io,+1-555-0101,https://linkedin.com/in/mike-johnson-bw,comp-betaworks,Founder,Serial entrepreneur. Active on Twitter.,2026-01-20,2026-02-18,@mikejbw,2026-02-16
+p-gamma-1,Emma,Williams,emma@gamma-research.org,,https://linkedin.com/in/emma-williams-gr,comp-gamma,Research Director,Manages annotation projects. Budget holder.,2026-02-01,2026-02-15,,2026-02-12
+p-delta-1,Hans,Mueller,,+49-555-0201,,comp-delta,CTO,Evaluating AI solutions for route optimization.,2026-02-05,2026-02-22,,2026-02-20
+p-delta-2,Anna,Schmidt,anna@deltalogistics.eu,,https://linkedin.com/in/anna-schmidt-dl,comp-delta,Head of Innovation,Reports to CTO. Innovation lab lead.,2026-02-10,2026-02-20,,2026-02-18
+p-epsilon-1,David,Park,david@epsilonhealth.com,,https://linkedin.com/in/david-park-eh,comp-epsilon,CPO,Needs training data for medical imaging AI.,2026-02-10,2026-02-20,@davidpark,2026-02-15
+p-zeta-1,Lisa,Tanaka,lisa@zetafinance.co,,https://linkedin.com/in/lisa-tanaka-zf,comp-zeta,CEO,Looking for NLP annotation services.,2026-02-12,2026-02-19,,2026-02-17

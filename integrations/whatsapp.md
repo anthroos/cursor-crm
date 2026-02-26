@@ -1,38 +1,38 @@
 # WhatsApp (Baileys)
 
-Cursor читає WhatsApp чати через Baileys — неофіційну бібліотеку WhatsApp Web.
+Read WhatsApp chats through Baileys -- an unofficial WhatsApp Web library.
 
-## Що це дає
+## What You Get
 
-- ✅ Читати повідомлення з чатів
-- ✅ Читати групові чати
-- ✅ Бачити список контактів
-- ⚠️ Відправляти повідомлення (обережно з лімітами!)
-
----
-
-## ⚠️ Важливо перед початком
-
-1. **Baileys — неофіційна бібліотека**. WhatsApp може заблокувати акаунт при підозрілій активності
-2. **Не спамте!** Використовуйте тільки для читання або рідких повідомлень
-3. **Тримайте телефон онлайн** — WhatsApp Web потребує підключення до телефону
+- Read messages from chats
+- Read group chats
+- View contact list
+- Send messages (use with caution -- rate limits apply!)
 
 ---
 
-## Крок 1: Встановити Node.js
+## Important Before You Start
+
+1. **Baileys is an unofficial library**. WhatsApp may block your account for suspicious activity.
+2. **Do not spam!** Use only for reading or infrequent messages.
+3. **Keep your phone online** -- WhatsApp Web requires a phone connection.
+
+---
+
+## Step 1: Install Node.js
 
 ```bash
 # macOS
 brew install node
 
-# Перевірити
-node --version  # має бути 18+
+# Verify
+node --version  # should be 18+
 npm --version
 ```
 
 ---
 
-## Крок 2: Створити проект
+## Step 2: Create Project
 
 ```bash
 mkdir whatsapp-integration
@@ -43,9 +43,9 @@ npm install @whiskeysockets/baileys qrcode-terminal
 
 ---
 
-## Крок 3: Створити скрипт авторизації
+## Step 3: Create Login Script
 
-Створи файл `whatsapp_login.js`:
+Create `whatsapp_login.js`:
 
 ```javascript
 const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
@@ -53,40 +53,39 @@ const qrcode = require('qrcode-terminal');
 
 async function main() {
     const { state, saveCreds } = await useMultiFileAuthState('./whatsapp_session');
-    
+
     const sock = makeWASocket({
         auth: state,
         printQRInTerminal: false
     });
-    
+
     sock.ev.on('creds.update', saveCreds);
-    
+
     sock.ev.on('connection.update', async (update) => {
         const { connection, qr } = update;
-        
+
         if (qr) {
-            console.log('\n📱 Скануй QR код в WhatsApp:');
-            console.log('   WhatsApp → ⋮ → Linked Devices → Link a Device\n');
+            console.log('\nScan QR code in WhatsApp:');
+            console.log('   WhatsApp > Menu > Linked Devices > Link a Device\n');
             qrcode.generate(qr, { small: true });
         }
-        
+
         if (connection === 'open') {
-            console.log('\n✅ Підключено до WhatsApp!');
-            
-            // Показати останні чати
+            console.log('\nConnected to WhatsApp!');
+
             const chats = await sock.groupFetchAllParticipating();
-            console.log(`\nГрупи: ${Object.keys(chats).length}`);
-            
+            console.log(`\nGroups: ${Object.keys(chats).length}`);
+
             for (const [jid, chat] of Object.entries(chats).slice(0, 5)) {
-                console.log(`  • ${chat.subject}`);
+                console.log(`  - ${chat.subject}`);
             }
-            
-            console.log('\nСесія збережена в ./whatsapp_session');
-            console.log('Можеш закрити скрипт (Ctrl+C)');
+
+            console.log('\nSession saved to ./whatsapp_session');
+            console.log('You can close the script (Ctrl+C)');
         }
-        
+
         if (connection === 'close') {
-            console.log('❌ Відключено');
+            console.log('Disconnected');
         }
     });
 }
@@ -94,16 +93,16 @@ async function main() {
 main();
 ```
 
-Запусти:
+Run:
 ```bash
 node whatsapp_login.js
 ```
 
-Скануй QR код у WhatsApp на телефоні.
+Scan the QR code in WhatsApp on your phone.
 
 ---
 
-## Крок 4: Додати в .gitignore
+## Step 4: Add to .gitignore
 
 ```
 whatsapp_session/
@@ -112,21 +111,21 @@ node_modules/
 
 ---
 
-## Використання в Cursor
+## Usage
 
-Після авторизації можеш просити Cursor:
+After authorization, ask your AI assistant:
 
-> "Покажи останні повідомлення з групи [назва]"
+> "Show last messages from group [name]"
 
-> "Знайди чат з [ім'я контакту]"
+> "Find chat with [contact name]"
 
-> "Скільки непрочитаних повідомлень?"
+> "How many unread messages?"
 
 ---
 
-## Приклади коду
+## Code Examples
 
-### Отримати список чатів
+### List Chats
 
 ```javascript
 const chats = await sock.groupFetchAllParticipating();
@@ -136,72 +135,72 @@ for (const [jid, chat] of Object.entries(chats)) {
 }
 ```
 
-### Прочитати повідомлення
+### Read Messages
 
 ```javascript
 sock.ev.on('messages.upsert', async (m) => {
     const msg = m.messages[0];
     if (!msg.key.fromMe) {
-        console.log(`Від: ${msg.pushName}`);
-        console.log(`Текст: ${msg.message?.conversation}`);
+        console.log(`From: ${msg.pushName}`);
+        console.log(`Text: ${msg.message?.conversation}`);
     }
 });
 ```
 
-### Відправити повідомлення (обережно!)
+### Send Message (use carefully!)
 
 ```javascript
-// Тільки для існуючих контактів!
-await sock.sendMessage('380XXXXXXXXX@s.whatsapp.net', { 
-    text: 'Привіт!' 
+// Only for existing contacts!
+await sock.sendMessage('1234567890@s.whatsapp.net', {
+    text: 'Hello!'
 });
 ```
 
 ---
 
-## Rate Limits та безпека
+## Rate Limits and Safety
 
-| Що | Рекомендація |
-|----|--------------|
-| Нові контакти | НЕ писати першим |
-| Повідомлень на день | < 50 |
-| Затримка між повідомленнями | 10+ секунд |
-| Масові розсилки | ❌ Заборонено |
+| Parameter | Recommendation |
+|-----------|----------------|
+| New contacts | Do NOT message first |
+| Messages per day | < 50 |
+| Delay between messages | 10+ seconds |
+| Mass messaging | Prohibited |
 
-**Порушення лімітів = бан акаунту!**
+**Violating limits = account ban!**
 
 ---
 
 ## Troubleshooting
 
-### QR код не сканується
-- Переконайся що WhatsApp на телефоні оновлений
-- Спробуй видалити `whatsapp_session/` і почати знову
+### QR code doesn't scan
+- Make sure WhatsApp on your phone is up to date
+- Try deleting `whatsapp_session/` and start over
 
 ### "Connection closed"
-- Перевір інтернет на телефоні
-- WhatsApp на телефоні має бути активний
+- Check internet on your phone
+- WhatsApp on your phone must be active
 
 ### "Logged out"
-- Сесія закінчилась
-- Видали `whatsapp_session/` і авторизуйся знову
+- Session expired
+- Delete `whatsapp_session/` and re-authorize
 
-### Повідомлення не відправляються
-- Перевір формат номера: `380XXXXXXXXX@s.whatsapp.net`
-- Контакт має бути в телефонній книзі
+### Messages won't send
+- Check number format: `1234567890@s.whatsapp.net`
+- Contact must be in your phone book
 
 ---
 
-## Альтернатива: WhatsApp Business API
+## Alternative: WhatsApp Business API
 
-Для серйозного бізнес-використання краще офіційний API:
+For serious business use, consider the official API:
 - https://business.whatsapp.com/products/business-platform
 
-Переваги:
-- Офіційний, без ризику бану
-- Більші ліміти
-- Templates для розсилок
+Pros:
+- Official, no ban risk
+- Higher limits
+- Message templates
 
-Мінуси:
-- Платний
-- Потрібна верифікація бізнесу
+Cons:
+- Paid
+- Requires business verification

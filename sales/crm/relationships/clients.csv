@@ -1,1 +1,3 @@
 client_id,company_id,product_id,status,contract_start,contract_end,mrr,currency,primary_contact_id,notes,created_date,last_updated,last_contact_via_primary
+cli-betaworks-1,comp-betaworks,prod-labeling,active,2025-11-01,2026-10-31,2000,USD,p-beta-1,Ongoing UI annotation project. Monthly batches.,2025-11-01,2026-02-18,2026-02-16
+cli-gamma-1,comp-gamma,prod-training,active,2026-01-15,,500,USD,p-gamma-1,AI training course for research assistants. Quarterly renewal.,2026-01-15,2026-02-15,2026-02-12

@@ -2,7 +2,7 @@
 
 **AI-native CRM that runs in your IDE.** No SaaS, no dashboards -- just talk to your sales data.
 
-Built for founders and developers who close deals from their IDE. Works with [Cursor](https://cursor.sh) IDE and [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview).
+Built for founders and developers who close deals from their IDE. Works with [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) and [Cursor](https://cursor.sh) IDE.
 
 ## Why Cursor CRM?
 
@@ -25,6 +25,7 @@ Built for founders and developers who close deals from their IDE. Works with [Cu
 - **Activity log** -- every call, email, message logged
 - **Machine-readable schema** -- schema.yaml for automated validation
 - **Integrations** -- Telegram, Gmail, WhatsApp, LinkedIn
+- **Skills framework** -- optional advanced automation via [claude-skills](https://github.com/anthroos/claude-skills)
 
 ## Quick Start
 
@@ -37,10 +38,11 @@ cd cursor-crm
 pip3 install pandas pyyaml
 
 # 3. Open in your IDE
-cursor .  # or claude in terminal
+claude   # Claude Code
+# or: cursor .
 
 # 4. Configure
-# Edit .cursorrules -- replace [YOUR_COMPANY_NAME] etc.
+# Edit CLAUDE.md -- replace [YOUR_COMPANY_NAME] etc.
 
 # 5. Start using
 # "Add company Acme Inc, they just raised Series A"
@@ -52,7 +54,7 @@ cursor .  # or claude in terminal
 
 ```
 cursor-crm/
-├── .cursorrules                    # AI rules (schema, skills, validation)
+├── CLAUDE.md                      # AI rules (schema, skills, validation)
 ├── sales/
 │   ├── crm/
 │   │   ├── contacts/
@@ -76,6 +78,7 @@ cursor-crm/
 │   ├── telegram_api.md
 │   ├── gmail.md
 │   ├── whatsapp.md
+│   ├── linkedin.md
 │   ├── telegram_remote.md
 │   └── cursor-pm.md              # PM integration guide
 └── scripts/
@@ -85,15 +88,15 @@ cursor-crm/
 ## Data Model
 
 ```
-Companies ←─── People
-    │              │
-    ├── Leads      │ (via primary_contact_id)
-    ├── Clients ───┤
-    ├── Partners   │
-    │      │
-    │   Deals (proposal → paid)
-    │
-    └── Activities ── People
+Companies <--- People
+    |              |
+    +-- Leads      | (via primary_contact_id)
+    +-- Clients ---+
+    +-- Partners   |
+    |      |
+    |   Deals (proposal -> paid)
+    |
+    +-- Activities -- People
 ```
 
 **Key design decisions:**
@@ -101,12 +104,16 @@ Companies ←─── People
 - Relationships (leads, clients, partners) track how you interact with them per product
 - One company can be a client for product A and a lead for product B
 
+## Sample Data
+
+The CSV files come pre-populated with realistic fictional data (6 companies, 8 people, 4 leads, 2 clients, 1 partner, 3 deals, 8 activities). Explore it to see how the data model works before adding your own.
+
 ## Key Concepts
 
 ### Lead Pipeline
 
 ```
-new → qualified → proposal → negotiation → won / lost
+new -> qualified -> proposal -> negotiation -> won / lost
 ```
 
 When a lead is `won`, convert to a client record.
@@ -114,7 +121,7 @@ When a lead is `won`, convert to a client record.
 ### Deal Lifecycle
 
 ```
-proposal → negotiation → won → in_progress → delivered → invoiced → paid
+proposal -> negotiation -> won -> in_progress -> delivered -> invoiced -> paid
 ```
 
 Track delivery, invoicing, and payment in one table.
@@ -156,7 +163,17 @@ Log every touchpoint:
 "Show all activities with Acme this month"
 ```
 
-## Integration with cursor-pm
+## Ecosystem
+
+Cursor CRM is part of a three-repo system. Each works standalone, together they form a complete business operating system:
+
+| Repo | Purpose |
+|------|---------|
+| **cursor-crm** (this repo) | CRM: contacts, leads, deals, activities |
+| [cursor-pm](https://github.com/anthroos/cursor-pm) | Project & task management |
+| [claude-skills](https://github.com/anthroos/claude-skills) | Skills framework, agents, multi-channel automation |
+
+### Integration with cursor-pm
 
 For project and task management, pair with [cursor-pm](https://github.com/anthroos/cursor-pm):
 - Link PM projects to CRM companies/deals
@@ -165,18 +182,28 @@ For project and task management, pair with [cursor-pm](https://github.com/anthro
 
 See [integrations/cursor-pm.md](integrations/cursor-pm.md) for setup.
 
+### Integration with claude-skills
+
+For advanced automation:
+- Multi-channel outreach (Telegram, Email, WhatsApp)
+- Automated lead enrichment and import pipelines
+- Scheduled CRM reporting and follow-up reminders
+
+See [claude-skills](https://github.com/anthroos/claude-skills) for the full skills framework.
+
 ## Integrations
 
 | Integration | What it does | Guide |
 |-------------|--------------|-------|
 | Telegram API | Read/send messages, manage groups | [Setup](integrations/telegram_api.md) |
-| Telegram Remote | Control Cursor from your phone | [Setup](integrations/telegram_remote.md) |
+| Telegram Remote | Control your IDE from your phone | [Setup](integrations/telegram_remote.md) |
 | Gmail | Search emails, read threads | [Setup](integrations/gmail.md) |
 | WhatsApp | Read chats via Baileys | [Setup](integrations/whatsapp.md) |
+| LinkedIn | Connection management, messaging | [Setup](integrations/linkedin.md) |
 
 ## Requirements
 
-- [Cursor IDE](https://cursor.sh) (free or pro) or [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) or [Cursor IDE](https://cursor.sh)
 - Python 3.10+
 - pandas, pyyaml (`pip3 install pandas pyyaml`)
 
@@ -193,6 +220,10 @@ See [integrations/cursor-pm.md](integrations/cursor-pm.md) for setup.
 - Small teams (1-5) without dedicated sales ops
 - Developers who live in their IDE
 - Anyone tired of bloated CRM software
+
+## Migrating from v1
+
+If you used the previous version with `.cursorrules`, the change is simple: rename it to `CLAUDE.md` or copy the new one from this repo. Your CSV data is fully compatible.
 
 ## License
 

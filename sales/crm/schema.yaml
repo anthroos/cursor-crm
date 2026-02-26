@@ -167,7 +167,7 @@ tables:
     id_format: "^deal-[a-z0-9]+-\\d+$"
     enums:
       stage: [proposal, negotiation, won, in_progress, delivered, invoiced, paid, lost]
-      currency: [USD, EUR, UAH, PLN, SEK, JPY]
+      currency: [USD, EUR, GBP, CAD, AUD, CHF, JPY, SGD, PLN, UAH, SEK, INR, BRL]
     rules:
       - name: paid_requires_invoice
         description: "Paid deal must have invoice_date"

@@ -138,7 +138,7 @@ Full machine-readable schema: `sales/crm/schema.yaml`
 | `client_id` | string | Yes | FK to clients |
 | `name` | string | Yes | Deal description |
 | `value` | float | Yes | Deal value |
-| `currency` | enum | Yes | USD / EUR / UAH / PLN / SEK / JPY |
+| `currency` | enum | Yes | USD / EUR / GBP / CAD / AUD / CHF / JPY / SGD / PLN / UAH / SEK / INR / BRL |
 | `stage` | enum | Yes | proposal / negotiation / won / in_progress / delivered / invoiced / paid / lost |
 | `created_date` | YYYY-MM-DD | Yes | When created |
 | `delivered_date` | YYYY-MM-DD | No | When delivered |

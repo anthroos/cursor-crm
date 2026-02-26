@@ -21,10 +21,12 @@ git clone https://github.com/anthroos/cursor-crm.git
 git clone https://github.com/anthroos/cursor-pm.git
 ```
 
-In cursor-pm `.cursorrules`, set:
+In cursor-pm `CLAUDE.md`, set:
 ```
 CRM_INTEGRATION: true
 CRM_PATH: ../cursor-crm/sales/crm
 ```
+
+For advanced automation (multi-channel outreach, scheduled follow-ups, agent workflows), see [claude-skills](https://github.com/anthroos/claude-skills).
 
 See [cursor-pm/integrations/cursor-crm.md](https://github.com/anthroos/cursor-pm/blob/main/integrations/cursor-crm.md) for full details.

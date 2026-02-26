@@ -1,1 +1,7 @@
 company_id,name,website,linkedin_url,type,industry,geo,size,description,created_date,last_updated
+comp-acme,Acme Corp,https://acme.com,https://linkedin.com/company/acme-corp,company,AI/ML,San Francisco US,medium,AI-powered analytics platform for e-commerce,2026-01-15,2026-02-20
+comp-betaworks,BetaWorks Studios,https://betaworks.io,https://linkedin.com/company/betaworks,company,Software,New York US,small,Creative studio building AI tools for designers,2026-01-20,2026-02-18
+comp-gamma,Gamma Research,https://gamma-research.org,https://linkedin.com/company/gamma-research,ngo,Education,London UK,medium,Non-profit research institute focused on AI safety,2026-02-01,2026-02-15
+comp-delta,Delta Logistics,https://deltalogistics.eu,,company,Logistics,Berlin DE,enterprise,European logistics company exploring AI optimization,2026-02-05,2026-02-22
+comp-epsilon,Epsilon Health,https://epsilonhealth.com,https://linkedin.com/company/epsilon-health,company,Healthcare,Toronto CA,medium,Telemedicine platform with AI diagnostics,2026-02-10,2026-02-20
+comp-zeta,Zeta Finance,https://zetafinance.co,,company,Fintech,Singapore SG,small,Trading bot startup using NLP for market signals,2026-02-12,2026-02-19

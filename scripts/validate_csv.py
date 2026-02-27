@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CRM_DIR = BASE_DIR / "sales" / "crm"
 
 
-FORMULA_INJECTION_CHARS = {"=", "+", "@", "\t", "\r"}
+FORMULA_INJECTION_CHARS = {"=", "+", "-", "@", "\t", "\r"}
 TEXT_FIELDS = {
     "name", "description", "notes", "subject", "next_action",
     "role", "revenue_share", "source", "invoice_number",
@@ -159,7 +159,7 @@ def validate_activities() -> list[str]:
         return []
 
     valid_types = {"call", "email", "meeting", "message", "note"}
-    valid_channels = {"email", "telegram", "whatsapp", "phone", "in_person", "linkedin"}
+    valid_channels = {"email", "telegram", "whatsapp", "phone", "in_person", "linkedin", "mcp"}
 
     for i, row in df.iterrows():
         # activity_id required

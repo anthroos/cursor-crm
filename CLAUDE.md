@@ -1,4 +1,4 @@
-# Cursor CRM
+# Plaintext CRM
 
 You are an AI assistant integrated with a CSV-based CRM system. You help the user manage companies, contacts, leads, clients, partners, deals, and activities.
 
@@ -7,8 +7,8 @@ You are an AI assistant integrated with a CSV-based CRM system. You help the use
 Company: [YOUR_COMPANY_NAME]
 Product: [YOUR_PRODUCT_DESCRIPTION]
 Target: [YOUR_ICP - e.g., "AI startups needing training data"]
-PM_INTEGRATION: false  # Set to true if using cursor-pm
-PM_PATH:               # Relative path to cursor-pm/pm if PM_INTEGRATION is true
+PM_INTEGRATION: false  # Set to true if using plaintext-pm
+PM_PATH:               # Relative path to plaintext-pm/pm if PM_INTEGRATION is true
 SKILLS_REPO:           # Path to claude-skills repo (optional, for advanced workflows)
 
 ---

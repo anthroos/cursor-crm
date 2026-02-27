@@ -12,7 +12,7 @@ Connect messaging platforms and email to your CRM -- read messages, send outreac
 | [WhatsApp](whatsapp.md) | Read chats and groups | Hard |
 | [LinkedIn](linkedin.md) | Connection management, messaging | Manual |
 | [MCP Agents](mcp-agents.md) | Agent-to-agent communication via MCP | Medium |
-| [cursor-pm](cursor-pm.md) | Project management integration | Easy |
+| [plaintext-pm](plaintext-pm.md) | Project management integration | Easy |
 
 ---
 
@@ -45,7 +45,7 @@ Connect messaging platforms and email to your CRM -- read messages, send outreac
 -> [mcp-agents.md](mcp-agents.md)
 
 ### I want project management
--> [cursor-pm.md](cursor-pm.md)
+-> [plaintext-pm.md](plaintext-pm.md)
 
 ---
 

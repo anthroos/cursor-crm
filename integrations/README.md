@@ -7,7 +7,6 @@ Connect messaging platforms and email to your CRM -- read messages, send outreac
 | Integration | What it does | Difficulty |
 |-------------|-------------|------------|
 | [Telegram API](telegram_api.md) | Read/send messages, manage groups | Medium |
-| [Telegram Remote](telegram_remote.md) | Control your IDE from your phone | Easy |
 | [Gmail](gmail.md) | Read emails, search messages | Medium |
 | [WhatsApp](whatsapp.md) | Read chats and groups | Hard |
 | [LinkedIn](linkedin.md) | Connection management, messaging | Manual |
@@ -28,9 +27,6 @@ Connect messaging platforms and email to your CRM -- read messages, send outreac
 
 ### I want to read Telegram
 -> [telegram_api.md](telegram_api.md)
-
-### I want to control my IDE from my phone
--> [telegram_remote.md](telegram_remote.md)
 
 ### I want to see emails in CRM
 -> [gmail.md](gmail.md)

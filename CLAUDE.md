@@ -104,7 +104,7 @@ deal_id, client_id (FK), name, value, currency, stage,
 created_date, delivered_date, invoice_date, invoice_number,
 paid_date, paid_amount, notes
 ```
-Stages: proposal -> negotiation -> won -> in_progress -> delivered -> invoiced -> paid
+Stages: proposal -> negotiation -> won -> in_progress -> delivered -> invoiced -> paid / lost
 
 ### activities.csv
 ```

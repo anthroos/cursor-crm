@@ -102,13 +102,18 @@ plaintext-crm/
 │   ├── activities.csv             # All communications
 │   └── schema.yaml                # Machine-readable validation
 ├── docs/
+│   ├── CRM_FLOW_DIAGRAM.md       # Visual CRM flow diagram
 │   ├── SCHEMA.md                  # Field definitions
 │   └── WORKFLOW.md                # Daily workflow
 ├── integrations/                  # Channel setup guides
 │   ├── telegram_api.md
 │   ├── gmail.md
 │   ├── whatsapp.md
-│   └── linkedin.md
+│   ├── linkedin.md
+│   ├── mcp-agents.md
+│   └── plaintext-pm.md
+├── sales/outreach/
+│   └── OUTREACH_PROMPT.md         # Outreach message templates
 └── scripts/
     └── validate_csv.py            # Data validation & integrity checks
 ```
@@ -183,6 +188,8 @@ Plaintext CRM works standalone. For a complete business OS, pair with:
 | Gmail | Search emails, read threads | [Setup](integrations/gmail.md) |
 | WhatsApp | Read chats via Baileys | [Setup](integrations/whatsapp.md) |
 | LinkedIn | Connection management, messaging | [Setup](integrations/linkedin.md) |
+| MCP Agents | Agent-to-agent communication via MCP | [Setup](integrations/mcp-agents.md) |
+| Plaintext PM | Project management integration | [Setup](integrations/plaintext-pm.md) |
 
 ## Requirements
 

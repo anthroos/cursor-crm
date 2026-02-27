@@ -1,8 +1,8 @@
-# Integration with cursor-pm
+# Integration with plaintext-pm
 
 ## Overview
 
-Cursor CRM handles sales, contacts, and outreach. For project and task management, pair it with [cursor-pm](https://github.com/anthroos/cursor-pm).
+Plaintext CRM handles sales, contacts, and outreach. For project and task management, pair it with [plaintext-pm](https://github.com/anthroos/plaintext-pm).
 
 ## How It Works
 
@@ -17,16 +17,16 @@ PM projects and tasks can reference CRM entities:
 Clone both repos side by side:
 
 ```bash
-git clone https://github.com/anthroos/cursor-crm.git
-git clone https://github.com/anthroos/cursor-pm.git
+git clone https://github.com/anthroos/plaintext-crm.git
+git clone https://github.com/anthroos/plaintext-pm.git
 ```
 
-In cursor-pm `CLAUDE.md`, set:
+In plaintext-pm `CLAUDE.md`, set:
 ```
 CRM_INTEGRATION: true
-CRM_PATH: ../cursor-crm/sales/crm
+CRM_PATH: ../plaintext-crm/sales/crm
 ```
 
 For advanced automation (multi-channel outreach, scheduled follow-ups, agent workflows), see [claude-skills](https://github.com/anthroos/claude-skills).
 
-See [cursor-pm/integrations/cursor-crm.md](https://github.com/anthroos/cursor-pm/blob/main/integrations/cursor-crm.md) for full details.
+See [plaintext-pm/integrations/plaintext-crm.md](https://github.com/anthroos/plaintext-pm/blob/main/integrations/plaintext-crm.md) for full details.

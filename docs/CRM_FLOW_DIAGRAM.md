@@ -245,4 +245,4 @@ clients.csv
 | **WhatsApp** | Baileys | [Setup](../integrations/whatsapp.md) |
 | **LinkedIn** | Manual / CDP | [Setup](../integrations/linkedin.md) |
 | **MCP Agents** | Model Context Protocol | [Setup](../integrations/mcp-agents.md) |
-| **cursor-pm** | CSV cross-reference | [Setup](../integrations/cursor-pm.md) |
+| **plaintext-pm** | CSV cross-reference | [Setup](../integrations/plaintext-pm.md) |

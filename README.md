@@ -1,7 +1,7 @@
-# Cursor CRM
+# Plaintext CRM
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/anthroos/cursor-crm)](https://github.com/anthroos/cursor-crm/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/anthroos/plaintext-crm)](https://github.com/anthroos/plaintext-crm/stargazers)
 [![Works with Claude Code](https://img.shields.io/badge/Works%20with-Claude%20Code-blueviolet)](https://docs.anthropic.com/en/docs/claude-code/overview)
 [![Works with Cursor](https://img.shields.io/badge/Works%20with-Cursor-orange)](https://cursor.sh)
 
@@ -20,9 +20,9 @@ AI:  Logged activity. Set next_action: "Send proposal", next_action_date: 2026-0
 
 ---
 
-## Why Cursor CRM?
+## Why Plaintext CRM?
 
-| Traditional CRM | Cursor CRM |
+| Traditional CRM | Plaintext CRM |
 |-----------------|------------|
 | Click through 10 screens to log a call | Say "log call with John, he's interested" |
 | Export to CSV to analyze | Ask "which leads are closing this month?" |
@@ -35,8 +35,8 @@ AI:  Logged activity. Set next_action: "Send proposal", next_action_date: 2026-0
 
 ```bash
 # 1. Clone
-git clone https://github.com/anthroos/cursor-crm.git
-cd cursor-crm
+git clone https://github.com/anthroos/plaintext-crm.git
+cd plaintext-crm
 
 # 2. Install
 pip3 install pandas pyyaml
@@ -87,7 +87,7 @@ Companies <--- People
 ## Project Structure
 
 ```
-cursor-crm/
+plaintext-crm/
 ├── CLAUDE.md                      # AI context (schema, skills, rules)
 ├── sales/crm/
 │   ├── contacts/
@@ -167,14 +167,13 @@ python3 scripts/validate_csv.py --fix  # Auto-fix missing last_updated
 
 ## Ecosystem
 
-Cursor CRM works standalone. For a complete business OS, pair with:
+Plaintext CRM works standalone. For a complete business OS, pair with:
 
 | Repo | Purpose | Stars |
 |------|---------|-------|
-| **cursor-crm** (this) | CRM: contacts, leads, deals, activities | ![GitHub stars](https://img.shields.io/github/stars/anthroos/cursor-crm?style=flat) |
-| [cursor-pm](https://github.com/anthroos/cursor-pm) | Project & task management | ![GitHub stars](https://img.shields.io/github/stars/anthroos/cursor-pm?style=flat) |
+| **plaintext-crm** (this) | CRM: contacts, leads, deals, activities | ![GitHub stars](https://img.shields.io/github/stars/anthroos/plaintext-crm?style=flat) |
+| [plaintext-pm](https://github.com/anthroos/plaintext-pm) | Project & task management | ![GitHub stars](https://img.shields.io/github/stars/anthroos/plaintext-pm?style=flat) |
 | [claude-code-review-skill](https://github.com/anthroos/claude-code-review-skill) | AI code review (280+ checks) | ![GitHub stars](https://img.shields.io/github/stars/anthroos/claude-code-review-skill?style=flat) |
-| [claude-code-multichannel-outreach](https://github.com/anthroos/claude-code-multichannel-outreach) | Multi-channel messaging | ![GitHub stars](https://img.shields.io/github/stars/anthroos/claude-code-multichannel-outreach?style=flat) |
 
 ## Integrations
 

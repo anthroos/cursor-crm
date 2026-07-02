@@ -1,0 +1,46 @@
+# API keys and secrets
+.env
+.env.*
+*.env
+
+# Private keys
+*.key
+*.pem
+*.p12
+
+# Session files
+*.session
+telegram_session.session
+whatsapp_session/
+
+# Google OAuth
+credentials.json
+token.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+
+# Node
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cursor
+.cursor/
+
+# Logs
+*.log
+*.pid

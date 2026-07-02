@@ -41,11 +41,15 @@ cd plaintext-crm
 # 2. Install
 pip3 install pandas pyyaml
 
-# 3. Open in your AI IDE
+# 3. Fill in your context (30 seconds)
+#    Open CLAUDE.md and replace [YOUR_COMPANY_NAME], [YOUR_PRODUCT_DESCRIPTION],
+#    [YOUR_ICP] in the Context block -- the AI uses these for research and drafts.
+
+# 4. Open in your AI IDE
 claude                    # Claude Code
 # or: cursor .           # Cursor IDE
 
-# 4. Start using -- just talk
+# 5. Start using -- just talk
 "Add company Acme Inc, Series A startup in SF"
 "Show my hot leads"
 "What needs follow-up today?"
@@ -178,6 +182,7 @@ Plaintext CRM works standalone. For a complete business OS, pair with:
 |------|---------|-------|
 | **plaintext-crm** (this) | CRM: contacts, leads, deals, activities | ![GitHub stars](https://img.shields.io/github/stars/anthroos/plaintext-crm?style=flat) |
 | [plaintext-pm](https://github.com/anthroos/plaintext-pm) | Project & task management | ![GitHub stars](https://img.shields.io/github/stars/anthroos/plaintext-pm?style=flat) |
+| [heyreach-claude-skill](https://github.com/anthroos/heyreach-claude-skill) | LinkedIn outreach from the cloud (HeyReach API/MCP) | ![GitHub stars](https://img.shields.io/github/stars/anthroos/heyreach-claude-skill?style=flat) |
 | [claude-code-review-skill](https://github.com/anthroos/claude-code-review-skill) | AI code review (280+ checks) | ![GitHub stars](https://img.shields.io/github/stars/anthroos/claude-code-review-skill?style=flat) |
 
 ## Integrations
@@ -188,6 +193,7 @@ Plaintext CRM works standalone. For a complete business OS, pair with:
 | Gmail | Search emails, read threads | [Setup](integrations/gmail.md) |
 | WhatsApp | Read chats via Baileys | [Setup](integrations/whatsapp.md) |
 | LinkedIn | Connection management, messaging | [Setup](integrations/linkedin.md) |
+| HeyReach | Cloud LinkedIn campaigns: connects, DMs, inbox -- laptop can be off | [Skill repo](https://github.com/anthroos/heyreach-claude-skill) |
 | MCP Agents | Agent-to-agent communication via MCP | [Setup](integrations/mcp-agents.md) |
 | Plaintext PM | Project management integration | [Setup](integrations/plaintext-pm.md) |
 
